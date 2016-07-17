@@ -40,5 +40,18 @@ class ApiController < ApplicationController
 				render :json => e.to_json, :status => 400
 			end
 		end
-	end					
+	end		
+
+	def rand_string(len)
+    	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
+    	string  =  (0..len).map{ o[rand(o.length)]  }.join
+
+    return string
+  end
+
+	def user_params
+	    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_hash, :password_salt, :verification_code, 
+	    :email_verification, :api_authtoken, :authtoken_expiry)
+	  end
+  			
 end
