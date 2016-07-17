@@ -2,6 +2,8 @@ Rails.application.routes.draw do
 
   post 'api/signup'
 
+  match "*path", to: "application#page_not_found", via: :all
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
