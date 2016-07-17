@@ -4,7 +4,8 @@ class User < ActiveRecord::Base
 
 	validates_confirmation_of :password
 	validates_presence_of :email, :on => :create
-	validates :password, :length: { in: 6..30 }, :on => :create
+	validates :password, length: { in: 6..30 }, :on => :create
+
 
 	validates_format_of :email, :with => /\A[^@]+@([^@\.]+\.)+[^@\.]+\z/
 	validates_uniqueness_of :email
@@ -26,7 +27,7 @@ class User < ActiveRecord::Base
 				password = AESCrypt.decrypt(password, ENV["API_AUTH_PASSWORD"])
 			rescue Exception => e
 				password = nil
-				puts "error - #{{e.message}}"
+				puts "error - #{e.message}"
 			end
 
 			puts "******************* #{password} 2"
