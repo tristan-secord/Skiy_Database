@@ -3,6 +3,7 @@ class ApiController < ApplicationController
 	before_filter :check_for_valid_authtoken, :except => [:signup, :signin, :get_token]
 
 	def signup
+		puts "Signing up"
 		if request.post?
 			if params && params[:first_name] && params[:last_name] && params[:email] && params[:password]
 
