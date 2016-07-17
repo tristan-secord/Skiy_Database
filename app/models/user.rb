@@ -21,7 +21,6 @@ class User < ActiveRecord::Base
 		user = self.where("email =?", login_name).first
 
 		if user
-			puts "******************* #{password} 1"
 
 			begin
 				password = AESCrypt.decrypt(password, ENV["API_AUTH_PASSWORD"])
@@ -29,8 +28,6 @@ class User < ActiveRecord::Base
 				password = nil
 				puts "error - #{e.message}"
 			end
-
-			puts "******************* #{password} 2"
 
 			if user.password_hash = BCrypt::Engine.hash_secret(password, user.password_salt)
 				user
