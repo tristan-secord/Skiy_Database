@@ -1,4 +1,4 @@
-class Error < ActiveRecord::Base
+class Error
 	include ActiveModel::Validations
 	include ActiveModel::Conversion
 	extend ActiveModel::Naming
