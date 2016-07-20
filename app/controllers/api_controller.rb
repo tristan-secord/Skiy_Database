@@ -42,7 +42,6 @@ class ApiController < ApplicationController
 	end		
 
 	def signin
-		puts "Signing in"
 		if request.post?
 			if params && params[:email] && params[:password]
 				user = User.where(:email => params[:email]).first
