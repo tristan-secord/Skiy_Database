@@ -21,7 +21,6 @@ class User < ActiveRecord::Base
 		user = self.where("email =?", login_name).first
 
 		if user
-
 			begin
 				password = AESCrypt.decrypt(password, ENV["API_AUTH_PASSWORD"])
 			rescue Exception => e
@@ -29,7 +28,7 @@ class User < ActiveRecord::Base
 				puts "error - #{e.message}"
 			end
 
-			if user.password_hash = BCrypt::Engine.hash_secret(password, user.password_salt)
+			if user.password_hash == BCrypt::Engine.hash_secret(password, user.password_salt)
 				user
 			else
 				nil
