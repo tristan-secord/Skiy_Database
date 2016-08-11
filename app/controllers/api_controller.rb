@@ -29,7 +29,7 @@ class ApiController < ApplicationController
 					error_str = ""
 
 					user.errors.each{|attr, msg|
-						error_str += "#{attr} #{msg}"
+						error_str += "#{attr} - #{msg}"
 					}
 
 					e = Error.new(:status => 400, :message => error_str)
@@ -45,7 +45,7 @@ class ApiController < ApplicationController
 	def signin
 		if request.post?
 			if params && params[:email] && params[:password]
-				user = User.where(:email => params[:email]).first
+				user = (User.where(:email => params[:email]).first || User.where(:username => params[:email].first)
 
 				if user
 					if User.authenticate(params[:email], params[:password])
@@ -99,7 +99,7 @@ class ApiController < ApplicationController
   	end
 
 	def user_params
-	    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_hash, :password_salt, :verification_code, 
+	    params.require(:user).permit(:first_name, :last_name, :email, :username, :password, :password_hash, :password_salt, :verification_code, 
 	    :email_verification, :api_authtoken, :authtoken_expiry)
 	 end
 end
