@@ -28,7 +28,7 @@ class ApiController < ApplicationController
 				else 
 					error_str = ""
 
-					user.errors.each{|attr, msg|
+					user.errors.each{|attr, msg| {
 						if ("#{attr}" == "email")
 							error_str = "Looks like that email has already been taken..."
 						elsif ("#{attr}" == "username")
