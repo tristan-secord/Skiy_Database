@@ -45,7 +45,10 @@ class ApiController < ApplicationController
 	def signin
 		if request.post?
 			if params && params[:email] && params[:password]
-				user = (User.where(:email => params[:email]).first || User.where(:username => params[:email].first)
+				user = User.where(:email => params[:email]).first
+				if !user
+					user = User.where(:username => params[:email].first)
+				end
 
 				if user
 					if User.authenticate(params[:email], params[:password])
