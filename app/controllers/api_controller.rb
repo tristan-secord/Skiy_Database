@@ -47,7 +47,7 @@ class ApiController < ApplicationController
 			if params && params[:email] && params[:password]
 				user = User.where(:email => params[:email]).first
 				if !user
-					user = User.where(:username => params[:email].first)
+					user = User.where(:username => params[:email]).first
 				end
 
 				if user
