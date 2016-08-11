@@ -86,6 +86,10 @@ class ApiController < ApplicationController
 					else 
 						friend = Friend.new()
 					end
+				end
+			end
+		end
+	end
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
@@ -98,5 +102,4 @@ class ApiController < ApplicationController
 	    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_hash, :password_salt, :verification_code, 
 	    :email_verification, :api_authtoken, :authtoken_expiry)
 	 end
-  			
 end
