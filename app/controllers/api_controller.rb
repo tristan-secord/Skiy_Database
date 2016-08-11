@@ -28,12 +28,12 @@ class ApiController < ApplicationController
 				else 
 					error_str = ""
 
-					user.errors.each{|attr, msg| {
+					user.errors.each{|attr, msg|
 						if ("#{attr}" == "email")
 							error_str = "Looks like that email has already been taken..."
 						elsif ("#{attr}" == "username")
 							error_str = "Looks like that username has already been taken..."
-					}
+					end
 
 					e = Error.new(:status => 400, :message => error_str)
 					render :json => e.to_json, :status => 400
