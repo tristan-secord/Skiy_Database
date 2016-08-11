@@ -22,6 +22,10 @@ class User < ActiveRecord::Base
 
 	def self.authenticate(login_name, password)
 		user = self.where("email =?", login_name).first
+	end
+
+		if !user
+			user = self.where("username =?", login_name).first
 
 		if user
 			begin
