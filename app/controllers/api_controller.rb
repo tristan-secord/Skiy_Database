@@ -4,12 +4,13 @@ class ApiController < ApplicationController
 
 	def signup
 		if request.post?
-			if params && params[:first_name] && params[:last_name] && params[:email] && params[:password]
+			if params && params[:first_name] && params[:last_name] && params[:email] && params[:username] && params[:password]
 
 				params[:user] = Hash.new
 				params[:user][:first_name] = params[:first_name]
 				params[:user][:last_name] = params[:last_name]
 				params[:user][:email] = params[:email]
+				params[:user][:username] = params[:username]
 
 				begin
 					decrypted_pass = AESCrypt.decrypt(params[:password], ENV["API_AUTH_PASSWORD"])
@@ -28,14 +29,17 @@ class ApiController < ApplicationController
 					error_str = ""
 
 					user.errors.each{|attr, msg|
-						error_str += "#{attr} - #{msg},"
+						if ("#{attr}" == "email")
+							error_str = "Looks like that email has already been taken..."
+						elsif ("#{attr}" == "username")
+							error_str = "Looks like that username has already been taken..."
 					}
 
 					e = Error.new(:status => 400, :message => error_str)
 					render :json => e.to_json, :status => 400
 				end
 			else
-				e = Error.new(:status => 400, :message => "required parameters are missing")
+				e = Error.new(:status => 400, :message => "Looks like your missing some vital information!")
 				render :json => e.to_json, :status => 400
 			end
 		end
@@ -57,19 +61,34 @@ class ApiController < ApplicationController
 						end
 						render :json => user.to_json, :status => 200
 					else
-						e = Error.new(:status => 401, :message => "Wrong Password")
+						e = Error.new(:status => 401, :message => "I think you may have entered the wrong password...")
 						render :json => e.to_json, :status => 401
 					end
 				else
-					e = Error.new(:status => 400, :message => "No USER found by this email ID")
+					e = Error.new(:status => 400, :message => "Huh... Looks like we can't find any user by that email.")
 					render :json => e.to_json, :status => 400
 				end
 			else
-				e = Error.new(:status => 400, :message => "required parameters are missing")
+				e = Error.new(:status => 400, :message => "Looks like your missing some vital information!")
 				render :json => e.to_json, :status => 400
 			end 
 		end
 	end
+
+	def addFriend
+		if request.post?
+			if params && params[:email] 
+				user = User.where(:id => params[:id]).first
+				friend = User.where(:email => params[:friend_email])
+
+				if user
+					friend = Friend.where(:friend_id => user.id)
+
+					if friend
+						e = Error.new(:status => 400, :message => "Already added this person")
+					else 
+						friend = Friend.new()
+					end
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten

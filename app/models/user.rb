@@ -4,11 +4,13 @@ class User < ActiveRecord::Base
 
 	validates_confirmation_of :password
 	validates_presence_of :email, :on => :create
+	validates_presence_of :username, :on => :create
 	validates :password, length: { in: 6..30 }, :on => :create
 
 
 	validates_format_of :email, :with => /\A[^@]+@([^@\.]+\.)+[^@\.]+\z/
-	validates_uniqueness_of :email
+	validates_uniqueness_of :
+	has_many :friends
 
 	def encrypt_password
 		if password.present?
