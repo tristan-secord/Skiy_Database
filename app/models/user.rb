@@ -23,10 +23,14 @@ class User < ActiveRecord::Base
 	def self.authenticate(login_name, password)
 		user = self.where("email =?", login_name).first
 
-
 		if !user
 			user = self.where("username =?", login_name).first
+			puts "Using username"
+		else 
+			puts "Using email"
 		end
+
+		puts user
 
 		if user
 			begin
