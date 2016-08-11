@@ -9,7 +9,8 @@ class User < ActiveRecord::Base
 
 
 	validates_format_of :email, :with => /\A[^@]+@([^@\.]+\.)+[^@\.]+\z/
-	validates_uniqueness_of :
+	validates_uniqueness_of :email
+	validates_uniqueness_of :username
 	has_many :friends
 
 	def encrypt_password
