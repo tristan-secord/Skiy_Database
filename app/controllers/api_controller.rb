@@ -76,9 +76,8 @@ class ApiController < ApplicationController
 	end
 
 	def findFriend
-		puts ("finding friend")
-		if request.post?
-			puts ("post request")
+		if request.get?
+			puts ("get request")
 			if params && params[:search_text]
 				puts("params & params search text")
     			@users = User.search(params[:search_text]).order("created_at DESC")
@@ -127,4 +126,10 @@ class ApiController < ApplicationController
 	    params.require(:user).permit(:first_name, :last_name, :email, :username, :password, :password_hash, :password_salt, :verification_code, 
 	    :email_verification, :api_authtoken, :authtoken_expiry)
 	 end
+
+	 def check_for_valid_authtoken
+    	authenticate_or_request_with_http_token do |token, options|     
+      	@user = User.where(:api_authtoken => token).first      
+    end
+  end
 end
