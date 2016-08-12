@@ -51,9 +51,6 @@ class User < ActiveRecord::Base
 	end
 
 	def self.search(search)
-		where("first_name ILIKE ?", "%#{search}%").to_json 
-  		where("last_name ILIKE ?", "%#{search}%").to_json
-  		where("email ILIKE ?", "%#{search}%").to_json
-  		where("username ILIKE ?", "%#{search}%").to_json
+		where("first_name LIKE ?", "%#{search}%")
   	end
 end

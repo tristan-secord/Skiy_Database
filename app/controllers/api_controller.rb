@@ -77,13 +77,8 @@ class ApiController < ApplicationController
 
 	def findFriend
 		if request.post?
-			user = User.where(:first_name => params[:search_text]).first
-			if user 
-				render :json => user.to_json, :status => 200
-			else
-				e = Error.new(:status => 400, :message => "Could not create users.")
-    			render :json => e.to_json, :status => 400
-    		end 
+			 @users = User.find(:all, :conditions => ["first_name LIKE %?%", params[:search_text]])
+			 render :json => @users.to_json, :status => 200
     	end
     end
 
