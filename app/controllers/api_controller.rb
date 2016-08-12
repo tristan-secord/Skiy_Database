@@ -76,9 +76,13 @@ class ApiController < ApplicationController
 	end
 
 	def findFriend
+		puts ("finding friend")
 		if request.post?
+			puts ("post request")
 			if params && params[:search_text]
+				puts("params & params search text")
     			@users = User.search(params[:search_text]).order("created_at DESC")
+    			puts @users
     			if @users
     				puts @users
     				render :json => @users, :status => 200
