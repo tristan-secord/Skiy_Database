@@ -77,22 +77,13 @@ class ApiController < ApplicationController
 
 	def findFriend
 		if request.post?
-			puts ("post request")
-			if params && params[:search_text]
-				puts("params & params search text")
-    			@users = User.search(params[:search_text]).order("created_at DESC")
-    			puts @users
-    			if @users
-    				puts @users
-    				render :json => @users, :status => 200
-    			else
-    				e = Error.new(:status => 400, :message => "Could not create users.")
-    				render :json => e.to_json, :status => 400
-    			end
-    		else
-    			e = Error.new(:status => 400, :message => "Need search text to find friends")
+			user = User.where(:first_name => params[:search_text]).first
+			if user 
+				render :json => user.to_json, :status => 200
+			else
+				e = Error.new(:status => 400, :message => "Could not create users.")
     			render :json => e.to_json, :status => 400
-    		end
+    		end 
     	end
     end
 
