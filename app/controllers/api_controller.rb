@@ -93,10 +93,6 @@ class ApiController < ApplicationController
     	end
     end
 
-  else
-    @posts = Post.all.order('created_at DESC')
-  end
-
 	def addFriend
 		if request.post?
 			if params && params[:email] 
