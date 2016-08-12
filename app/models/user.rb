@@ -25,12 +25,7 @@ class User < ActiveRecord::Base
 
 		if !user
 			user = self.where("username =?", login_name).first
-			puts "Using username"
-		else 
-			puts "Using email"
 		end
-
-		puts user
 
 		if user
 			begin
@@ -54,4 +49,11 @@ class User < ActiveRecord::Base
 		options[:except] ||= [:id, :password_hash, :password_salt, :email_verification, :verification_code, :created_at, :updated_at]
 		super(options)
 	end
+
+	def self.search(search)
+		where("first_name ILIKE ?", "%#{search}%").to_json 
+  		where("last_name ILIKE ?", "%#{search}%").to_json
+  		where("email ILIKE ?", "%#{search}%").to_json
+  		where("username ILIKE ?", "%#{search}%").to_json
+  	end
 end
