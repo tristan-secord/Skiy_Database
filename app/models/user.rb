@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+	ActiveRecord::Base.include_root_in_json = false
 	attr_accessor :password
 	before_save :encrypt_password
 
@@ -48,6 +49,11 @@ class User < ActiveRecord::Base
 	def to_json(options={})
 		options[:except] ||= [:id, :password_hash, :password_salt, :email_verification, :verification_code, :created_at, :updated_at]
 		super(options)
+	end
+
+
+	def as_json(options={})
+	  super(:only => [:first_name, :last_name, :username)
 	end
 
 	def self.search(search)
