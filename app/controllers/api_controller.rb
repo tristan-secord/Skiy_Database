@@ -77,11 +77,11 @@ class ApiController < ApplicationController
 
 	def findFriend
 		if request.post?
-			@users = User.where(first_name: params[:search_text]).to_json
-			@users.each do |user|
-				user.to_json
+			@users = User.where(first_name: params[:search_text])
+			for @users.each do |user|
+				@result += user.to_json
 			end
-			render :json => @users, :status => 200
+			render :json => @result, :status => 200
     	end
     end
 
