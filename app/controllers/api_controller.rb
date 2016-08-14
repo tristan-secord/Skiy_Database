@@ -77,8 +77,8 @@ class ApiController < ApplicationController
 
 	def findFriend
 		if request.post?
-			@users = User.search(params[:search_text])
-			 render :json => @users, :status => 200
+			@users = User.where(first_name: params[:search_text])
+			render :json => @users, :status => 200
     	end
     end
 
