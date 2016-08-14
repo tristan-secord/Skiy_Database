@@ -53,7 +53,7 @@ class User < ActiveRecord::Base
 
 
 	def as_json(options={})
-	  super(:only => [:first_name, :last_name, :username)
+	  super(:only => [:first_name, :last_name, :username])
 	end
 
 	def self.search(search)
