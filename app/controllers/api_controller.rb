@@ -104,7 +104,7 @@ class ApiController < ApplicationController
 	def getFriends
 		if request.get?
 			if @user && @user.authtoken_expiry > Time.now
-				user = User.where (:id => @user.id)
+				user = @user
 				if user
 					render :json => user.to_json, :status => 200
 				end
