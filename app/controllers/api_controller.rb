@@ -101,11 +101,6 @@ class ApiController < ApplicationController
 		end
 	end
 
-	def get_friends
-	end
-
-	private
-
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
     	string  =  (0..len).map{ o[rand(o.length)]  }.join
@@ -118,9 +113,9 @@ class ApiController < ApplicationController
 	    :email_verification, :api_authtoken, :authtoken_expiry)
 	 end
 
-	   def check_for_valid_authtoken
-    authenticate_or_request_with_http_token do |token, options|     
-      @user = User.where(:api_authtoken => token).first      
+	 def check_for_valid_authtoken
+    	authenticate_or_request_with_http_token do |token, options|     
+      	@user = User.where(:api_authtoken => token).first      
     end
   end
 end
