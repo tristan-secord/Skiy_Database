@@ -101,6 +101,21 @@ class ApiController < ApplicationController
 		end
 	end
 
+	def getFriends
+		if request.get?
+			if @user && @user.authtoken_expiry > Time.now
+				@friends = Friends.where(:id => @user.id)
+				@result.joins('JOIN users ON users.user_id = friends.friend_id')
+				render :json => result.as_json(:only => [:first_name, :last_name, :username, :friend_id, :status]).to_json, :status => 200
+			else
+				e = Error.new(:status => 401, :message => "Authtoken has expired. Please get a new token and try again!")
+				render :json => e.to_json, :status => 401
+			end
+		end
+	end
+
+
+
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
     	string  =  (0..len).map{ o[rand(o.length)]  }.join
