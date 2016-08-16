@@ -103,7 +103,6 @@ class ApiController < ApplicationController
 
 	def get_friends
 		if request.get?
-			@user = User.find(4)
 			if @user
 				render :json => @user.to_json, :status => 200
 			else
@@ -130,5 +129,4 @@ class ApiController < ApplicationController
       		@user = User.where(:api_authtoken => token).first      
       	end
     end
-  end
 end
