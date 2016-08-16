@@ -104,7 +104,10 @@ class ApiController < ApplicationController
 	def getFriends
 		if request.get?
 			if @user && @user.authtoken_expiry > Time.now
-				render :json => @user.to_json, :status => 200
+				user = User.where (:id => @user.id)
+				if user
+					render :json => user.to_json, :status => 200
+				end
 			else
 				e = Error.new(:status => 401, :message => "Authtoken has expired. Please get a new token and try again!")
 				render :json => e.to_json, :status => 401
