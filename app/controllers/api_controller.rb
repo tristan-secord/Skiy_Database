@@ -101,7 +101,7 @@ class ApiController < ApplicationController
 		end
 	end
 
-	def getFriends
+	def get_friends
 		if request.get?
 			@user = User.find(4)
 			if @user
