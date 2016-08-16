@@ -102,15 +102,9 @@ class ApiController < ApplicationController
 	end
 
 	def get_friends
-		if request.get?
-			if @user
-				render :json => @user.to_json, :status => 200
-			else
-				e = Error.new(:status => 401, :message => "Authtoken has expired. Please get a new token and try again!")
-				render :json => e.to_json, :status => 401
-			end
-		end
 	end
+
+	private
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
@@ -124,9 +118,9 @@ class ApiController < ApplicationController
 	    :email_verification, :api_authtoken, :authtoken_expiry)
 	 end
 
-	 def check_for_valid_authtoken
-    	authenticate_or_request_with_http_token do |token, options|     
-      		@user = User.where(:api_authtoken => token).first      
-      	end
+	   def check_for_valid_authtoken
+    authenticate_or_request_with_http_token do |token, options|     
+      @user = User.where(:api_authtoken => token).first      
     end
+  end
 end
