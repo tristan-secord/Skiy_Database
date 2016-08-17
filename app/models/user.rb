@@ -51,11 +51,6 @@ class User < ActiveRecord::Base
 		super(options)
 	end
 
-
-	def as_json(options={})
-	  super(:only => [:first_name, :last_name, :username])
-	end
-
 	def self.search(search)
 		where("first_name LIKE ?", "%#{search}%").to_json
   	end
