@@ -89,8 +89,8 @@ class ApiController < ApplicationController
 					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'requested')
 					@friends = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'friends')
 					render :json => {
-						pending => @pending.as_json(:only => [:id, :first_name, :last_name, :username, :email])
-						requested => @requested.as_json(:only => [:id, :first_name, :last_name, :username, :email])
+						pending => @pending.as_json(:only => [:id, :first_name, :last_name, :username, :email]),
+						requested => @requested.as_json(:only => [:id, :first_name, :last_name, :username, :email]),
 						friends => @friends.as_json(:only => [:id, :first_name, :last_name, :username, :email])
 						}, :status => 200
 			else
