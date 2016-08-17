@@ -85,9 +85,13 @@ class ApiController < ApplicationController
     def getFriends
     	if request.get?
     		if @user
-    			render :json => @user.to_json, :status => 200
-    		else
-    			e = Error.new(:status => 400, :message => "Could not find you")
+    			@friends = Friend.where(:user_id => @user.id)
+    			if @friends
+					@friends.joins('JOIN users ON users.user_id = friends.friend_id')
+					render :json => friends.to_json(:only => [:first_name, :last_name, :username, :friend_id, :status]), :status => 200
+				end
+			else
+				e = Error.new(:status => 400, :message => "Could not find you")
     			render :json => e.to_json, :status => 400
     		end
     	end
