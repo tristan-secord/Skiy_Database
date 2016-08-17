@@ -85,11 +85,14 @@ class ApiController < ApplicationController
     def getFriends
     	if request.get?
     		if @user
-    			@friends = Friend.where(:user_id => @user.id)
-    			if @friends
-					@friends.joins('JOIN users ON users.user_id = friends.friend_id')
-					render :json => friends.to_json(:only => [:first_name, :last_name, :username, :friend_id, :status]), :status => 200
-				end
+					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'pending')
+					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'requested')
+					@friends = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'friends')
+					render :json => {
+						pending => @pending.as_json(:only => [:id, :first_name, :last_name, :username, :email])
+						requested => @requested.as_json(:only => [:id, :first_name, :last_name, :username, :email])
+						friends => @friends.as_json(:only => [:id, :first_name, :last_name, :username, :email])
+						}, :status => 200
 			else
 				e = Error.new(:status => 400, :message => "Could not find you")
     			render :json => e.to_json, :status => 400
