@@ -82,6 +82,17 @@ class ApiController < ApplicationController
     	end
     end
 
+    def getFriends
+    	if request.get?
+    		if @user
+    			render :json => @user.to_json, :status => 200
+    		else
+    			e = Error.new(:status => 400, :message => "Could not find you")
+    			render :json => e.to_json, :status => 400
+    		end
+    	end
+    end
+
 	def addFriend
 		if request.post?
 			if params && params[:email] 
