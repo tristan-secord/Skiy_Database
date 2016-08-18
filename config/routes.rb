@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   post 'api/signin'
   post 'api/findFriend'
   get 'api/getFriends'
+  post 'api/checkOldData'
 
   match "*path", to: "application#page_not_found", via: :all
 

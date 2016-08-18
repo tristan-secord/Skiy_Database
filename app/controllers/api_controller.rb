@@ -85,7 +85,7 @@ class ApiController < ApplicationController
     def getFriends
     	if request.get?
     		if @user
-					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email])
+					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email, :])
 					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'requested').as_json(:only => [:id, :first_name, :last_name, :username, :email])
 					@friends = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'friends').as_json(:only => [:id, :first_name, :last_name, :username, :email])
 
@@ -96,6 +96,17 @@ class ApiController < ApplicationController
 					render :json => @result.as_json, :status => 200
 			else
 				e = Error.new(:status => 400, :message => "Could not find you")
+    			render :json => e.to_json, :status => 400
+    		end
+    	end
+    end
+
+    def checkOldData
+    	if request.post?
+    		if params && params[:data_refresh]
+    			render :json => @user.to_json, :status => 200
+    		else
+    			e = Error.new(:status => 400, :message => "Could not find parameters")
     			render :json => e.to_json, :status => 400
     		end
     	end
