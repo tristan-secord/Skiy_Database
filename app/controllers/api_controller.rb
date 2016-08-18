@@ -85,7 +85,7 @@ class ApiController < ApplicationController
     def getFriends
     	if request.get?
     		if @user
-					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email, :])
+					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email])
 					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'requested').as_json(:only => [:id, :first_name, :last_name, :username, :email])
 					@friends = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'friends').as_json(:only => [:id, :first_name, :last_name, :username, :email])
 
