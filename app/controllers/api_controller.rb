@@ -85,9 +85,9 @@ class ApiController < ApplicationController
     def getFriends
     	if request.get?
     		if @user
-					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email])
-					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'requested').as_json(:only => [:id, :first_name, :last_name, :username, :email])
-					@friends = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = 4 AND friends.friend_status = ?', 'friends').as_json(:only => [:id, :first_name, :last_name, :username, :email])
+					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email])
+					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'requested').as_json(:only => [:id, :first_name, :last_name, :username, :email])
+					@friends = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'friends').as_json(:only => [:id, :first_name, :last_name, :username, :email])
 
 					@result = {}
 					@result["pending"] = @pending
@@ -103,14 +103,49 @@ class ApiController < ApplicationController
 
     def checkOldData
     	if request.post?
-    		if params && params[:data_refresh]
-    			if params[:data_refresh].first[:id]
-    				render :json => @user.to_json, :status => 200
-	    		else
-	    			e = Error.new(:status => 400, :message => "Could not find parameters")
-	    			render :json => e.to_json, :status => 400
-	    		end
-	    	end
+    		if @user
+	    		if params && params[:data_refresh]
+	    			@pending = []
+	    			@requested = []
+	    			@friends = []
+					@relationships = Friend.where(:user_id => @user.id)
+					@relationships.each do |relationship|
+						if params[:data_refresh].any? { |data| data[:id].to_i == relationship.friend_id && data[:updated_at].to_time < relationship.updated_at }
+							# ADD PERSON
+							case relationship.friend_status
+							when 'pending'
+								@pending.push(User.where(:id => relationship.user_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+							when 'requested'
+								@requested.push(User.where(:id => relationship.user_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+							when 'friends'
+								@friends.push(User.where(:id => relationship.user_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+							end
+						end
+
+						@result = {}
+						@result["pending"] = @pending
+						@result["requested"] = @requested
+						@result["friends"] = @friends
+						render :json => @result.as_json, :status => 200
+		    		else
+		    			e = Error.new(:status => 400, :message => "Could not find parameters")
+		    			render :json => e.to_json, :status => 400
+		    		end
+		    	else
+					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email])
+					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'requested').as_json(:only => [:id, :first_name, :last_name, :username, :email])
+					@friends = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'friends').as_json(:only => [:id, :first_name, :last_name, :username, :email])
+
+					@result = {}
+					@result["pending"] = @pending
+					@result["requested"] = @requested
+					@result["friends"] = @friends
+					render :json => @result.as_json, :status => 200
+				end
+			else
+				e = Error.new(:status => 400, :message => "Unauthorized Access. Please try again")
+    			render :json => e.to_json, :status => 400
+    		end
     	end
     end
 
