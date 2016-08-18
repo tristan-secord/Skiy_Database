@@ -104,11 +104,14 @@ class ApiController < ApplicationController
     def checkOldData
     	if request.post?
     		if params && params[:data_refresh]
-    			render :json => @user.to_json, :status => 200
-    		else
-    			e = Error.new(:status => 400, :message => "Could not find parameters")
-    			render :json => e.to_json, :status => 400
-    		end
+    			@oldData = params[:data_refresh]
+    			if @oldData[:id]
+    				render :json => @user.to_json, :status => 200
+	    		else
+	    			e = Error.new(:status => 400, :message => "Could not find parameters")
+	    			render :json => e.to_json, :status => 400
+	    		end
+	    	end
     	end
     end
 
