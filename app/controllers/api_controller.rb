@@ -105,16 +105,16 @@ class ApiController < ApplicationController
     	if request.post?
     		if @user
 	    		if params && params[:data_refresh]
-	    			@pending = {}
-	    			@requested = {}
-	    			@friends = {}
+	    			@pending = []
+	    			@requested = []
+	    			@friends = []
 					@relationships = Friend.where(:user_id => @user.id)
 					@relationships.each do |relationship|
 						if !params[:data_refresh].any? {|data| data[:id].to_i == relationship.friend_id && data[:updated_at].to_time >= relationship.updated_at}
 							# ADD PERSON
 							case relationship.friend_status
 							when 'pending'
-								@pending.push(User.where(:id => relationship.friend_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+								@pending.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							when 'requested'
 								@requested.push(User.where(:id => relationship.friend_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							when 'friends'
