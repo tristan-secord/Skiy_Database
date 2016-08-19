@@ -121,16 +121,12 @@ class ApiController < ApplicationController
 								@friends.push(User.where(:id => relationship.user_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							end
 						end
-
-						@result = {}
-						@result["pending"] = @pending
-						@result["requested"] = @requested
-						@result["friends"] = @friends
-						render :json => @result.as_json, :status => 200
-		    		else
-		    			e = Error.new(:status => 400, :message => "Could not find parameters")
-		    			render :json => e.to_json, :status => 400
-		    		end
+					end
+					@result = {}
+					@result["pending"] = @pending
+					@result["requested"] = @requested
+					@result["friends"] = @friends
+					render :json => @result.as_json, :status => 200
 		    	else
 					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email])
 					@requested = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'requested').as_json(:only => [:id, :first_name, :last_name, :username, :email])
