@@ -116,9 +116,9 @@ class ApiController < ApplicationController
 							when 'pending'
 								@pending.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							when 'requested'
-								@requested.push(User.where(:id => relationship.friend_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+								@requested.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							when 'friends'
-								@friends.push(User.where(:id => relationship.friend_id).as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+								@friends.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							end
 						end
 					end
