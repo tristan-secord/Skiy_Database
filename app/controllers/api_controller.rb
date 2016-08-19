@@ -105,9 +105,6 @@ class ApiController < ApplicationController
     	if request.post?
     		if @user
 	    		if params && params[:data_refresh]
-	    			@pending = []
-	    			@requested = []
-	    			@friends = []
 					@relationships = Friend.where(:user_id => @user.id)
 					@relationships.each do |relationship|
 						if !params[:data_refresh].any? {|data| data[:id].to_i == relationship.friend_id && data[:updated_at].to_time >= relationship.updated_at}
