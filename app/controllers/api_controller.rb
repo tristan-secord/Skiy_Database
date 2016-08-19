@@ -110,7 +110,7 @@ class ApiController < ApplicationController
 	    			@friends = []
 					@relationships = Friend.where(:user_id => @user.id)
 					@relationships.each do |relationship|
-						if params[:data_refresh].any? { |data| data[:id].to_i == relationship.friend_id && data[:updated_at].to_time < relationship.updated_at }
+						if !params[:data_refresh].any? {|data| data[:id].to_i == relationship.friend_id && data[:updated_at].to_time >= relationship.updated_at}
 							# ADD PERSON
 							case relationship.friend_status
 							when 'pending'
