@@ -161,7 +161,7 @@ class ApiController < ApplicationController
 								@forward_relationship.save
 								#change backward relationship to friend
 								@backward_relationship[:friend_status] = 'friends'
-								@backward_relationfship.save
+								@backward_relationship.save
 								render :nothing => true, :status => 200
 							when 'requested'
 								#wrong direction - return error and new friend info
