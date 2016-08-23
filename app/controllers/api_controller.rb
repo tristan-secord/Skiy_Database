@@ -147,19 +147,49 @@ class ApiController < ApplicationController
 
 	def addFriend
 		if request.post?
-			if params && params[:email] 
-				user = User.where(:id => params[:id]).first
-				friend = User.where(:email => params[:friend_email])
-
-				if user
-					friend = Friend.where(:friend_id => user.id)
-
-					if friend
-						e = Error.new(:status => 400, :message => "Already added this person")
+			if @user
+				if params && params[:username] 
+					@friend = User.where(:username => params[:username])
+					if @friend
+						@forward_relationship = Friend.where(:user_id => @user.id, :friend_id => @friend.first[:id])
+						if @forward_relationship
+							@backward_relationship = Friend.where(:friend_id => @user.id, :user_id => @friend.first[:id]).first
+							case @forward_relationship.first[:friend_status]
+							when 'pending'
+								#change forward relationship to friend
+								@forward_relationship.first[:friend_status] = 'friend'
+								@forward_relationship.save
+								#change backward relationship to friend
+								@backward_relationship[:friend_status] = 'friend'
+								@backward_relationship.save
+								render :status => 200
+							when 'requested'
+								#wrong direction - return error and new friend info
+								e = Error.new(:status => 400, :message => "Already requested to be friends. Please wait for this person to accept your request.")
+	    						render :json => e.to_json, :status => 400
+							when 'friends'
+								#already friends - return error and new friend info
+								e = Error.new(:status => 400, :message => "You are already friends with this user.")
+	    						render :json => e.to_json, :status => 400
+							end
+						else
+							# make a forward_relationship requested
+							@forward_relationship = Friend.new(:user_id => @user.id, :friend_id => @friend.first[:id], :friend_status => 'requested')
+							@forward_relationship.save
+							# make a reverse_relationship pending
+							@reverse_relationship = Friend.new(:user_id => @friend.first[:id], :friend_status => 'pending')
+							@reverse_relationship.save
+							render :status => 200
+						end
 					else 
-						friend = Friend.new()
+						# couldnt find friend
+						e = Error.new(:status => 400, :message => "Could not find this user. Please try again")
+    					render :json => e.to_json, :status => 400
 					end
 				end
+			else 
+				e = Error.new(:status => 400, :message => "Unauthorized Access. Please try again")
+    			render :json => e.to_json, :status => 400
 			end
 		end
 	end
