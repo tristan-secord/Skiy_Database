@@ -151,18 +151,20 @@ class ApiController < ApplicationController
 				if params && params[:username] 
 					@friend = User.where(:username => params[:username])
 					if @friend
-						@forward_relationship = Friend.where(:user_id => @user.id, :friend_id => @friend.first[:id])
+						@friend = @friend.first
+						@forward_relationship = Friend.where(:user_id => @user[:id], :friend_id => @friend[:id])
 						if @forward_relationship
-							@backward_relationship = Friend.where(:friend_id => @user.id, :user_id => @friend.first[:id]).first
-							case @forward_relationship.first[:friend_status]
+							@forward_relationship = @forward_relationship.first
+							@backward_relationship = Friend.where(:friend_id => @user[:id], :user_id => @friend[:id]).first
+							case @forward_relationship[:friend_status]
 							when 'pending'
 								#change forward relationship to friend
-								@forward_relationship.first[:friend_status] = 'friend'
+								@forward_relationship[:friend_status] = 'friend'
 								@forward_relationship.save
 								#change backward relationship to friend
 								@backward_relationship[:friend_status] = 'friend'
 								@backward_relationship.save
-								render :status => 200
+								render :nothing => true, :status => 200
 							when 'requested'
 								#wrong direction - return error and new friend info
 								e = Error.new(:status => 400, :message => "Already requested to be friends. Please wait for this person to accept your request.")
@@ -179,7 +181,7 @@ class ApiController < ApplicationController
 							# make a reverse_relationship pending
 							@reverse_relationship = Friend.new(:user_id => @friend.first[:id], :friend_status => 'pending')
 							@reverse_relationship.save
-							render :status => 200
+							render :nothing => true, :status => 200
 						end
 					else 
 						# couldnt find friend
