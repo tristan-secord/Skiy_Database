@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get 'api/getFriends'
   post 'api/checkOldData'
   post 'api/addFriend'
+  post 'api/removeFriend'
 
   match "*path", to: "application#page_not_found", via: :all
 
