@@ -186,6 +186,9 @@ class ApiController < ApplicationController
 						e = Error.new(:status => 400, :message => "Could not find this user. Please try again")
     					render :json => e.to_json, :status => 400
 					end
+				else 
+					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
+					render :json => e.to_json, :status => 400
 				end
 			else 
 				e = Error.new(:status => 400, :message => "Unauthorized Access. Please try again")
@@ -193,6 +196,37 @@ class ApiController < ApplicationController
 			end
 		end
 	end
+
+	def removeFriend
+		if request.post?
+			if @user
+				if params && params[:username]
+					@friend = @friend = User.where(:username => params[:username]).first
+					if @friend
+						@forward_relationship = Friend.where(:user_id => @user[:id], :friend_id => @friend[:id]).first
+						if @forward_relationship
+							Friend.find(@forward_relationship[:id]).destroy
+						end
+						@reverse_relationship = Friend.where(:user_id => @friend[:id], :friend_id => @user[:id]).first
+						if @reverse_relationship
+							Friend.find(@reverse_relationship[:id]).destroy
+						end
+						render :nothing => true, :status => 200
+					else 
+						e = Error.new(:status => 400, :message => "Could not find this user. Please try again")
+						render :json => e.to_json, :status => 400
+					end
+				else
+					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
+					render :json => e.to_json, :status => 400
+				end
+			else
+				e = Error.new(:status => 400, :message => "Unauthorized Access. Please try again")
+				render :json => e.to_json, :status => 400
+			end
+		end
+	end
+
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
