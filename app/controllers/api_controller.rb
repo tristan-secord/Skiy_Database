@@ -176,10 +176,10 @@ class ApiController < ApplicationController
 							end
 						else
 							# make a forward_relationship requested
-							@forward_relationship = Friend.new(:user_id => @user.id, :friend_id => @friend.first[:id], :friend_status => 'requested')
+							@forward_relationship = Friend.new(:user_id => @user.id, :friend_id => @friend[:id], :friend_status => 'requested')
 							@forward_relationship.save
 							# make a reverse_relationship pending
-							@reverse_relationship = Friend.new(:user_id => @friend.first[:id], :friend_status => 'pending')
+							@reverse_relationship = Friend.new(:user_id => @friend[:id], :friend_status => 'pending')
 							@reverse_relationship.save
 							render :nothing => true, :status => 200
 						end
