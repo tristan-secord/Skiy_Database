@@ -159,10 +159,10 @@ class ApiController < ApplicationController
 							case @forward_relationship[:friend_status]
 							when 'pending'
 								#change forward relationship to friend
-								@forward_relationship[:friend_status] = 'friend'
+								@forward_relationship[:friend_status] = 'friends'
 								@forward_relationship.save
 								#change backward relationship to friend
-								@backward_relationship[:friend_status] = 'friend'
+								@backward_relationship[:friend_status] = 'friends'
 								@backward_relationship.save
 								render :nothing => true, :status => 200
 							when 'requested'
