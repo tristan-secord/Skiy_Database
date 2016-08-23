@@ -149,12 +149,10 @@ class ApiController < ApplicationController
 		if request.post?
 			if @user
 				if params && params[:username] 
-					@friend = User.where(:username => params[:username])
+					@friend = User.where(:username => params[:username]).first
 					if @friend
-						@friend = @friend.first
-						@forward_relationship = Friend.where(:user_id => @user[:id], :friend_id => @friend[:id])
+						@forward_relationship = Friend.where(:user_id => @user[:id], :friend_id => @friend[:id]).first
 						if @forward_relationship
-							@forward_relationship = @forward_relationship.first
 							@backward_relationship = Friend.where(:friend_id => @user[:id], :user_id => @friend[:id]).first
 							case @forward_relationship[:friend_status]
 							when 'pending'
