@@ -13,6 +13,7 @@ class User < ActiveRecord::Base
 	validates_uniqueness_of :email
 	validates_uniqueness_of :username
 	has_many :friends
+	has_many :devices
 
 	def encrypt_password
 		if password.present?

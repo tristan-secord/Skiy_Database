@@ -44,7 +44,7 @@ class ApiController < ApplicationController
 
 	def signin
 		if request.post?
-			if params && params[:email] && params[:password]
+			if params && params[:email] && params[:password] && params[:device_id]
 				user = User.where(:email => params[:email]).first
 				if !user
 					user = User.where(:username => params[:email]).first
@@ -54,10 +54,18 @@ class ApiController < ApplicationController
 					if User.authenticate(params[:email], params[:password])
 
 						if !user.api_authtoken || (user.api_authtoken && user.authtoken_expiry < Time.now)
-							auth_token = rand_string(20)
-							auth_expiry = Time.now + (24*60*60)
-
-							user.update_attributes(:api_authtoken => auth_token, :authtoken_expiry => auth_expiry)
+							loop do 
+								auth_token = rand_string(20)
+								auth_expiry = Time.now + (24*60*60)
+								user.update_attributes(:api_authtoken => auth_token, :authtoken_expiry => auth_expiry)
+								break if validates_uniqueness_of user[:api_authtoken] == true
+							end
+						end
+						#Update devices for this user
+						device = Device.where(:user_id => user.id, :registration_id => params[:device_id].to_i).first
+						if !device
+							device = Device.new(:user_id => user.id, :registration_id => params[:device_id].to_i, :device_type => 'ios')
+							device.save
 						end
 						render :json => user.to_json, :status => 200
 					else
