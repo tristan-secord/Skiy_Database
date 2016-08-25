@@ -52,20 +52,14 @@ class ApiController < ApplicationController
 
 				if user
 					if User.authenticate(params[:email], params[:password])
-
 						if !user.api_authtoken || (user.api_authtoken && user.authtoken_expiry < Time.now)
-							loop do 
+							auth_token = rand_string(20)
+							auth_expiry = Time.now + (24*60*60*60)
+							while User.where(:api_authtoken => auth_token).first != nil
 								auth_token = rand_string(20)
-								auth_expiry = Time.now + (24*60*60)
-								user.update_attributes(:api_authtoken => auth_token, :authtoken_expiry => auth_expiry)
-								break if validates_uniqueness_of user[:api_authtoken] == true
+								auth_expiry = Time.now + (24*60*60*60)
 							end
-						end
-						#Update devices for this user
-						device = Device.where(:user_id => user.id, :registration_id => params[:device_id].to_i).first
-						if !device
-							device = Device.new(:user_id => user.id, :registration_id => params[:device_id].to_i, :device_type => 'ios')
-							device.save
+							user.update_attributes(:api_authtoken => auth_token, :authtoken_expiry => auth_expiry)
 						end
 						render :json => user.to_json, :status => 200
 					else
