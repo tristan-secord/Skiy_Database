@@ -52,14 +52,14 @@ class User < ActiveRecord::Base
 	def self.notify_ios(id, text, data = nil)
 	    apn = Houston::Client.development
 	    apn.certificate = File.read('config/aps_development.pem') # certificate from prerequisites
-	    #device = Device.where(:user_id => id)
-	    #notification = Houston::Notification.new(device: device.registration_id)
-		#notification.alert = text
+	    device = Device.where(:user_id => id)
+	    notification = Houston::Notification.new(device: device.registration_id)
+		notification.alert = text
 		# take a look at the docs about these params
-		#notification.badge = 57
-		#notification.sound = "sosumi.aiff"
-		#notification.custom_data = data unless data.nil?
-		#apn.push(notification)
+		notification.badge = 57
+		notification.sound = "sosumi.aiff"
+		notification.custom_data = data unless data.nil?
+		apn.push(notification)
 	end
 
 	def to_json(options={})
