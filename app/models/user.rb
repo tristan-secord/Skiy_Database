@@ -47,6 +47,20 @@ class User < ActiveRecord::Base
 		end
 	end
 
+	def self.notify_ios(id, text, data = nil)
+	    apn = Houston::Client.development
+	    apn.certificate = File.read(ENV['APPLE_DEV_CERTIFICATE']) # certificate from prerequisites
+	    device = Device.where(:user_id => id)
+	    notification = Houston::Notification.new(device: device.registration_id)
+		notification.alert = text
+		# take a look at the docs about these params
+		notification.badge = 57
+		notification.sound = "sosumi.aiff"
+		notification.custom_data = data unless data.nil?
+		apn.push(notification)
+	    end
+	  end
+
 	def to_json(options={})
 		options[:except] ||= [:id, :password_hash, :password_salt, :email_verification, :verification_code, :created_at, :updated_at]
 		super(options)

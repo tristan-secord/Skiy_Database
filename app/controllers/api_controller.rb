@@ -61,6 +61,16 @@ class ApiController < ApplicationController
 							end
 							user.update_attributes(:api_authtoken => auth_token, :authtoken_expiry => auth_expiry)
 						end
+						device = Device.where(:user_id => user.id).first
+						if device
+							#send push notification to old device
+							User.notify_ios(user.id, "Account has been signed into on another device.")
+							device.registration_id = params[:device_id]
+							device.authtoken_expiry = user.authtoken_expiry
+						else
+							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type =>'ios', :authtoken_expiry => user.authtoken_expiry)
+						end
+						device.save
 						render :json => user.to_json, :status => 200
 					else
 						e = Error.new(:status => 401, :message => "I think you may have entered the wrong password...")
