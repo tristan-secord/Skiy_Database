@@ -1,3 +1,5 @@
+require 'houston'
+
 class User < ActiveRecord::Base
 	ActiveRecord::Base.include_root_in_json = false
 	attr_accessor :password
