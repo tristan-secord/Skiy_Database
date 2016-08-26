@@ -58,8 +58,7 @@ class User < ActiveRecord::Base
 		notification.sound = "sosumi.aiff"
 		notification.custom_data = data unless data.nil?
 		apn.push(notification)
-	    end
-	  end
+	end
 
 	def to_json(options={})
 		options[:except] ||= [:id, :password_hash, :password_salt, :email_verification, :verification_code, :created_at, :updated_at]
