@@ -64,7 +64,7 @@ class ApiController < ApplicationController
 						device = Device.where(:user_id => user.id).first
 						if device
 							#send push notification to old device
-							User.notify_ios(user.id, "Account has been signed into on another device.")
+							User.notify_ios(user.id, "Account has been signed into on another device.", nil)
 							device.registration_id = params[:device_id]
 							device.authtoken_expiry = user.authtoken_expiry
 						else
