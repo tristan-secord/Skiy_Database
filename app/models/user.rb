@@ -50,8 +50,8 @@ class User < ActiveRecord::Base
 	end
 
 	def self.notify_ios(id, text, data = nil)
-	    #apn = Houston::Client.development
-	    #apn.certificate = File.read(ENV['APPLE_DEV_CERTIFICATE']) # certificate from prerequisites
+	    apn = Houston::Client.development
+	    apn.certificate = File.read(ENV['APPLE_DEV_CERTIFICATE']) # certificate from prerequisites
 	    #device = Device.where(:user_id => id)
 	    #notification = Houston::Notification.new(device: device.registration_id)
 		#notification.alert = text
