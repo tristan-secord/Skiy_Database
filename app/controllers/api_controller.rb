@@ -57,7 +57,7 @@ class ApiController < ApplicationController
 							auth_expiry = Time.now + (24*60*60*60)
 							while User.where(:api_authtoken => auth_token).first != nil
 								auth_token = rand_string(20)
-								auth_expiry = Time.now + (24*60*60*60)
+								auth_expiry = Time.now + (24*60*60*30)
 							end
 							user.update_attributes(:api_authtoken => auth_token, :authtoken_expiry => auth_expiry)
 						end
@@ -68,7 +68,7 @@ class ApiController < ApplicationController
 							device.registration_id = params[:device_id]
 							device.authtoken_expiry = user.authtoken_expiry
 						else
-							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type =>'ios', :authtoken_expiry => user.authtoken_expiry)
+							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type => 'ios', :authtoken_expiry => user.authtoken_expiry)
 						end
 						device.save
 						render :json => user.to_json, :status => 200
