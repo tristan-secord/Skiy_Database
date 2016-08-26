@@ -51,7 +51,8 @@ class User < ActiveRecord::Base
 
 	def self.notify_ios(id, text, data = nil)
 	    apn = Houston::Client.development
-	    apn.certificate = File.read('config/aps_development.pem') # certificate from prerequisites
+	   	apn.passphrase = "marley92"
+	    apn.certificate = File.read('config/SkiyPush.pem') # certificate from prerequisites
 	    device = Device.where(:user_id => id).first
 	    notification = Houston::Notification.new(device: device[:registration_id])
 		notification.alert = text
