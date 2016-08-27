@@ -40,7 +40,7 @@ class ApiController < ApplicationController
 				render :json => e.to_json, :status => 400
 			end
 		end
-	end		
+	end	
 
 	def signin
 		if request.post?
@@ -64,7 +64,7 @@ class ApiController < ApplicationController
 						device = Device.where(:user_id => user.id).first
 						if device
 							#send push notification to old device
-							User.notify_ios(user.id, "SIGNOUT", "Account has been signed into on another device.", nil)
+							User.notify_ios(user.id, "SIGNOUT", "You have been signed out. Account has been accessed on another device.", nil)
 							device.registration_id = params[:device_id]
 							device.authtoken_expiry = user.authtoken_expiry
 						else
@@ -86,6 +86,22 @@ class ApiController < ApplicationController
 			end 
 		end
 	end
+
+	def signout
+		if request.get?
+			if @user
+				device = Device.where(:user_id => @user.id).first
+				if device
+					device.destroy
+				end
+				render :nothing => true, :status => 200
+			else
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+				render :json => e.to_json, :status => 401
+			end
+		end
+	end
+
 
 	def findFriend
 		if request.post?
@@ -151,8 +167,8 @@ class ApiController < ApplicationController
 					render :json => @result.as_json, :status => 200
 				end
 			else
-				e = Error.new(:status => 400, :message => "Unauthorized Access. Please try again")
-    			render :json => e.to_json, :status => 400
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+    			render :json => e.to_json, :status => 401
     		end
     	end
     end
@@ -203,8 +219,8 @@ class ApiController < ApplicationController
 					render :json => e.to_json, :status => 400
 				end
 			else 
-				e = Error.new(:status => 400, :message => "Unauthorized Access. Please try again")
-    			render :json => e.to_json, :status => 400
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+    			render :json => e.to_json, :status => 401
 			end
 		end
 	end
@@ -233,8 +249,8 @@ class ApiController < ApplicationController
 					render :json => e.to_json, :status => 400
 				end
 			else
-				e = Error.new(:status => 400, :message => "Unauthorized Access. Please try again")
-				render :json => e.to_json, :status => 400
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+				render :json => e.to_json, :status => 401
 			end
 		end
 	end
