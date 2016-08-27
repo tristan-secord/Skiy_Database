@@ -56,6 +56,7 @@ class User < ActiveRecord::Base
 	    device = Device.where(:user_id => id).first
 	    notification = Houston::Notification.new(device: device[:registration_id])
 		notification.alert = text
+		notification.category = category
 		# take a look at the docs about these params
 		notification.badge = 57
 		notification.sound = "sosumi.aiff"
