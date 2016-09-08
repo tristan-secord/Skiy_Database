@@ -272,7 +272,7 @@ class ApiController < ApplicationController
 
 	 def check_for_valid_authtoken
     	authenticate_or_request_with_http_token do |token, options|     
-      	@user = User.where(:api_authtoken => token).first      
+      	@user = User.where(:api_authtoken => token, :authtoken_expiry < Time.now).first      
     end
   end
 end
