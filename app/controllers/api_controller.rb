@@ -29,7 +29,7 @@ class ApiController < ApplicationController
 					error_str = ""
 
 					user.errors.each{|attr, msg|
-						error_str += "#{attr} - #{msg}"
+						error_str += "#{attr} - #{msg}\n"
 					}
 
 					e = Error.new(:status => 400, :message => error_str)
