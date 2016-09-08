@@ -89,6 +89,7 @@ class ApiController < ApplicationController
 		end
 	end
 
+#  NEEDS WORK !!!#
 	def signout
 		if request.get?
 			if @user
@@ -272,7 +273,7 @@ class ApiController < ApplicationController
 
 	 def check_for_valid_authtoken
     	authenticate_or_request_with_http_token do |token, options|     
-      	@user = User.where(:api_authtoken => token).first
+      	@user = User.where('users.api_authtoken = ? AND users.authtoken_expiry > ?', token, Time.now).first
     end
   end
 end
