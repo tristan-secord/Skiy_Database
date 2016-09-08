@@ -274,11 +274,10 @@ class ApiController < ApplicationController
     	authenticate_or_request_with_http_token do |token, options|     
       	@user = User.where(:api_authtoken => token).first      
       	if @user
-      		if @user.authtoken_expiry >= Time.now
+      		if @user.authtoken_expiry < Time.now
       			@user = nil
       		end
       	end
-
     end
   end
 end
