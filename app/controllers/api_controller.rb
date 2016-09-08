@@ -52,7 +52,8 @@ class ApiController < ApplicationController
 
 				if user
 					if User.authenticate(params[:email], params[:password])
-						if !user.api_authtoken || (user.api_authtoken && user.authtoken_expiry < Time.now)
+						device = Device.where(:user_id => user.id).first
+						if !user.api_authtoken || (user.api_authtoken && user.authtoken_expiry < Time.now) || !device || (device && device.registration_id != params[:device_id])
 							auth_token = rand_string(20)
 							auth_expiry = Time.now + (24*60*60*60)
 							while User.where(:api_authtoken => auth_token).first != nil
@@ -61,12 +62,13 @@ class ApiController < ApplicationController
 							end
 							user.update_attributes(:api_authtoken => auth_token, :authtoken_expiry => auth_expiry)
 						end
-						device = Device.where(:user_id => user.id).first
 						if device
-							#send push notification to old device
-							User.notify_ios(user.id, "SIGNOUT", "You have been signed out. Account has been accessed on another device.", nil)
-							device.registration_id = params[:device_id]
-							device.authtoken_expiry = user.authtoken_expiry
+							if device[:registration_id] != params[:device_id]
+								#send push notification to old device
+								User.notify_ios(user.id, "SIGNOUT", "You have been signed out. Account has been accessed on another device. If this was not you please change your password!", nil)
+								device.registration_id = params[:device_id]
+								device.authtoken_expiry = user.authtoken_expiry
+							end
 						else
 							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type => 'ios', :authtoken_expiry => user.authtoken_expiry)
 						end
