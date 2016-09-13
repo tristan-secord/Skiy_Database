@@ -216,7 +216,8 @@ class ApiController < ApplicationController
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
 								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, nil)
 							else 
-								PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload)
+								@notification = PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload)
+								@notification.save
 							end
 							render :nothing => true, :status => 200
 						end

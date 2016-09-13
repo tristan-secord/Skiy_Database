@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160824181459) do
+ActiveRecord::Schema.define(version: 20160913203557) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,8 +20,9 @@ ActiveRecord::Schema.define(version: 20160824181459) do
     t.integer  "user_id"
     t.string   "registration_id"
     t.string   "device_type"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.datetime "authtoken_expiry"
   end
 
   create_table "errors", force: :cascade do |t|
@@ -35,6 +36,16 @@ ActiveRecord::Schema.define(version: 20160824181459) do
     t.string   "friend_status"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+  end
+
+  create_table "pending_notifications", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "sender_id"
+    t.string   "category"
+    t.string   "payload"
+    t.datetime "expiry"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
