@@ -210,6 +210,14 @@ class ApiController < ApplicationController
 							# make a reverse_relationship pending
 							@reverse_relationship = Friend.new(:user_id => @friend[:id], :friend_id => @user[:id], :friend_status => 'pending')
 							@reverse_relationship.save
+							# send push notification to friend
+							@friend_device = Device.where(:user_id => @friend[:id]).first
+							@payload = @user.first_name + " " + @user.last_name + " has requested to be your friend. Would you like to accept this request?"
+							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
+								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, nil)
+							else 
+								PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload)
+							end
 							render :nothing => true, :status => 200
 						end
 					else 

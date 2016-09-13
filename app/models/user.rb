@@ -16,6 +16,7 @@ class User < ActiveRecord::Base
 	validates_uniqueness_of :username
 	has_many :friends
 	has_many :devices
+	has_many :pending_notifications
 
 	def encrypt_password
 		if password.present?

@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user_id: 1
+  sender_id: 1
+  category: MyString
+  payload: MyString
+  expiry: 2016-09-13 16:35:57
+
+two:
+  user_id: 1
+  sender_id: 1
+  category: MyString
+  payload: MyString
+  expiry: 2016-09-13 16:35:57
