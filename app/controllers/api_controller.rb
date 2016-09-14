@@ -73,7 +73,6 @@ class ApiController < ApplicationController
 							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type => 'ios', :authtoken_expiry => user.authtoken_expiry)
 						end
 						device.save
-						if PendingNotification.where(:user_id => user.id
 						render :json => user.to_json, :status => 200
 					else
 						e = Error.new(:status => 401, :message => "I think you may have entered the wrong password...")
