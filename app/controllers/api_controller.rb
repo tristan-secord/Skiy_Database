@@ -65,7 +65,7 @@ class ApiController < ApplicationController
 						if device
 							if device[:registration_id] != params[:device_id]
 								#send push notification to old device
-								User.notify_ios(user.id, "SIGNOUT", "You have been signed out. Account has been accessed on another device. If this was not you please change your password!", nil)
+								User.notify_ios(user.id, "SIGNOUT", "You have been signed out. Account has been accessed on another device. If this was not you please change your password!", 0, nil)
 								device.registration_id = params[:device_id]
 								device.authtoken_expiry = user.authtoken_expiry
 							end
@@ -73,6 +73,7 @@ class ApiController < ApplicationController
 							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type => 'ios', :authtoken_expiry => user.authtoken_expiry)
 						end
 						device.save
+						if PendingNotification.where(:user_id => user.id
 						render :json => user.to_json, :status => 200
 					else
 						e = Error.new(:status => 401, :message => "I think you may have entered the wrong password...")
@@ -212,13 +213,13 @@ class ApiController < ApplicationController
 							@reverse_relationship.save
 							# send push notification to friend
 							@friend_device = Device.where(:user_id => @friend[:id]).first
+							@friend_notifications = PendingNotification.where(:user_id => @friend[:id])
 							@payload = @user.first_name + " " + @user.last_name + " has requested to be your friend. Would you like to accept this request?"
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, nil)
-							else 
-								@notification = PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload)
-								@notification.save
+								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, @friend_notifications.count, nil)
 							end
+							@notification = PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload)
+							@notification.save
 							render :nothing => true, :status => 200
 						end
 					else 
