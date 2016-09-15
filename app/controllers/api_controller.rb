@@ -289,7 +289,7 @@ class ApiController < ApplicationController
 					@result = {}
 					#Add except or only to as json?????
 					@result["notifications"] = @locNotifications.as_json
-					render :json => result.as_json, :status => 200
+					render :json => @result.as_json, :status => 200
 				else 
 					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
 					render :json => e.to_json, :status => 400
