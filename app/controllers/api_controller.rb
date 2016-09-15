@@ -219,10 +219,10 @@ class ApiController < ApplicationController
 							@friend_device = Device.where(:user_id => @friend[:id]).first
 							@payload = @user.first_name + " " + @user.last_name + " has requested to be your friend."
 							#save to pending notifications
-							@notification = PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload)
+							@notification = PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload, :read => "f")
 							@notification.save
 							#get pending notifications count
-							@friend_notifications = PendingNotification.where('user_id = ? AND (expiry IS NULL OR expiry > ?', @friend[:id], Time.now)
+							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?', @friend[:id], false, Time.now)
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
 								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, @friend_notifications.count, nil)
 							end
