@@ -279,13 +279,16 @@ class ApiController < ApplicationController
 			if @user
 				if params && params[:badge_count]
 					@notifications = PendingNotification.where('user_id = ?', @user.id).first(params[:badge_count])
-					@notifications = @notifications.where('category != ?', 'FRIEND_REQUEST')
-					@result = {}
-					@result["notifications"] = notifications.as_json
 					@notifications.each do |notification|
 						notification.read = 't'
 						notification.save
 					end
+					@locNotifications = @notifications.select do |notification|
+						notification.category != 'FRIEND_REQUEST'
+					end
+					@result = {}
+					#Add except or only to as json?????
+					@result["notifications"] = @locNotifications.as_json
 					render :json => result.as_json, :status => 200
 				else 
 					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
