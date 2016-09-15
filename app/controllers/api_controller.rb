@@ -73,11 +73,10 @@ class ApiController < ApplicationController
 							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type => 'ios', :authtoken_expiry => user.authtoken_expiry)
 						end
 						device.save
-
 						@result = {}
 						#get top 20 notifications
 						@notifications = PendingNotification.where('user_id = ? AND (expiry IS NULL OR expiry > ?)', user.id, Time.now).order('created_at desc').first(20)
-						@result["user"] = user.to_json
+						@result["user"] = user.as_json(:only => [:first_name, :last_name, :email, :username, :api_authtoken, :authtoken_expiry])
 						@result["notifications"] = @notifications.as_json
 						render :json => @result.as_json, :status => 200
 					else
