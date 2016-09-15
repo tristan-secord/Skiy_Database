@@ -278,7 +278,7 @@ class ApiController < ApplicationController
 		if request.post?
 			if @user
 				if params && params[:badge_count]
-					@notifications = PendingNotification.where('user_id = ?', @user.id).first(params[:badge_count])
+					@notifications = PendingNotification.where('user_id = ?', @user.id).order('created_at DESC').first(params[:badge_count])
 					@notifications.each do |notification|
 						notification.read = 't'
 						notification.save
