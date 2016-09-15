@@ -73,7 +73,13 @@ class ApiController < ApplicationController
 							device = Device.new(:user_id => user.id, :registration_id => params[:device_id], :device_type => 'ios', :authtoken_expiry => user.authtoken_expiry)
 						end
 						device.save
-						render :json => user.to_json, :status => 200
+
+						@result = {}
+						#get top 20 notifications
+						@notifications = PendingNotification.where('user_id = ? AND (expiry IS NULL OR expiry > ?)', user.id, Time.now).order('created_at desc').first(20)
+						@result["user"] = user.to_json
+						@result["notifications"] = @notifications.as_json
+						render :json => @result.as_json, :status => 200
 					else
 						e = Error.new(:status => 401, :message => "I think you may have entered the wrong password...")
 						render :json => e.to_json, :status => 401
@@ -217,7 +223,7 @@ class ApiController < ApplicationController
 							@notification = PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload)
 							@notification.save
 							#get pending notifications count
-							@friend_notifications = PendingNotification.where(:user_id => @friend[:id])
+							@friend_notifications = PendingNotification.where('user_id = ? AND (expiry IS NULL OR expiry > ?', @friend[:id], Time.now)
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
 								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, @friend_notifications.count, nil)
 							end
