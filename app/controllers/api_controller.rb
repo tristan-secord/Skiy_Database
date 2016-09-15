@@ -274,6 +274,30 @@ class ApiController < ApplicationController
 		end
 	end
 
+	def getNotifications
+		if request.post?
+			if @user
+				if params && params[:badge_count]
+					@notifications = PendingNotification.where('user_id = ?', @user.id).first(params[:badge_count])
+					@notifications = @notifications.where('category != ?', 'FRIEND_REQUEST')
+					@result = {}
+					@result["notifications"] = notifications.as_json
+					@notifications.each do |notification|
+						notification.read = 't'
+						notification.save
+					end
+					render :json => result.as_json, :status => 200
+				else 
+					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
+					render :json => e.to_json, :status => 400
+				end
+			else
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+				render :json => e.to_json, :status => 401
+			end
+		end
+	end
+
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
