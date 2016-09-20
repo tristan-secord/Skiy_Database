@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   post 'api/removeFriend'
   get 'api/signout'
   post 'api/getNotifications'
+  post 'api/locRequest'
 
   match "*path", to: "application#page_not_found", via: :all
 

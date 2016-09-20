@@ -1,3 +1,5 @@
+require 'pusher'
+
 class ApiController < ApplicationController
 	http_basic_authenticate_with name:ENV["API_AUTH_NAME"], password:ENV["API_AUTH_PASSWORD"], :only => [:signup, :signin, :get_token]  
 	before_filter :check_for_valid_authtoken, :except => [:signup, :signin, :get_token]
@@ -75,7 +77,7 @@ class ApiController < ApplicationController
 						device.save
 						@result = {}
 						#get top 20 notifications
-						@notifications = PendingNotification.where('user_id = ? AND category != ? AND (expiry IS NULL OR expiry > ?)', user.id, 'FRIEND_REQUEST', Time.now).order('created_at desc').first(20)
+						@notifications = PendingNotification.where('user_id = ? AND category != ?', user.id, 'FRIEND_REQUEST').order('created_at desc').first(20)
 						@result["user"] = user.as_json(:only => [:first_name, :last_name, :email, :username, :api_authtoken, :authtoken_expiry])
 						@result["notifications"] = @notifications.as_json
 						render :json => @result.as_json, :status => 200
@@ -222,9 +224,9 @@ class ApiController < ApplicationController
 							@notification = PendingNotification.new(:user_id => @friend[:id], :sender_id => @user.id, :category => "FRIEND_REQUEST", :payload => @payload, :read => "f")
 							@notification.save
 							#get pending notifications count
-							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?', @friend[:id], false, Time.now)
+							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @friend[:id], false, Time.now)
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, @friend_notifications.count, nil)
+								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, @friend_notifications.count, @user.username)
 							end
 							render :nothing => true, :status => 200
 						end
@@ -291,6 +293,50 @@ class ApiController < ApplicationController
 					@result["notifications"] = @locNotifications.as_json
 					render :json => @result.as_json, :status => 200
 				else 
+					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
+					render :json => e.to_json, :status => 400
+				end
+			else
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+				render :json => e.to_json, :status => 401
+			end
+		end
+	end
+
+	def locRequest
+		if request.post?
+			if @user
+				if params && params[:type] && params[:id]
+					case params[:type]
+					when 'REQUEST'
+						#check if a session between these two users already exists
+						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND type != ?', @user.id, params[:id], Time.now, 'SEND').first
+						if @old_session
+							e = Error.new(:status => 409, :message => "Already requested this users location. Waiting for the user to respond.")
+							render :json => e.to_json, :status => 409
+						end
+						#create session
+						@expiry = Time.now + (3*60*60)
+						@channel = 'private-' + @user.id.to_s + '_private-' + params[:id].to_s
+						@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :type => params[:type], :expiry_date => @expiry, :status => 'pending', @channel_name => @channel)
+						#send push notification
+						@payload = @user.first_name + " " + @user.last_name + " has requested your location."
+						@notification = PendingNotification.new(:user_id => params[:id], :sender_id => @user.id, :category => "REQUEST_LOCATION", :payload => @payload, :read => "f")
+						@notification.save
+						#get pending notifications count
+						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @friend[:id], false, Time.now)
+						if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
+							User.notify_ios(@friend[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, nil)
+						end
+						#respond with correct data
+						@result = {}
+						@result["channel_name"] = @session.channel_name
+						@result["id"] = params[:id]
+						render :json => @result.as_json, :status => 200
+					when 'SHARE'
+					when 'SEND'
+					end
+				else  
 					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
 					render :json => e.to_json, :status => 400
 				end

@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user_id: 1
+  friend_id: 1
+  status: MyString
+  channel_name: MyString
+  expiry_date: 2016-09-20
+
+two:
+  user_id: 1
+  friend_id: 1
+  status: MyString
+  channel_name: MyString
+  expiry_date: 2016-09-20
