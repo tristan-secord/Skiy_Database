@@ -1,5 +1,3 @@
-require 'pusher'
-
 class ApiController < ApplicationController
 	http_basic_authenticate_with name:ENV["API_AUTH_NAME"], password:ENV["API_AUTH_PASSWORD"], :only => [:signup, :signin, :get_token]  
 	before_filter :check_for_valid_authtoken, :except => [:signup, :signin, :get_token]
