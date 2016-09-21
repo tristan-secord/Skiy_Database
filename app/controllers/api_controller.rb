@@ -325,7 +325,7 @@ class ApiController < ApplicationController
 						#get pending notifications count
 						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @friend[:id], false, Time.now)
 						if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-							User.notify_ios(@friend[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, @session.as_json)
+							User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, @session.as_json)
 						end
 						#respond with correct data
 						@result = {}
