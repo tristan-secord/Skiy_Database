@@ -312,26 +312,27 @@ class ApiController < ApplicationController
 						if @old_session
 							e = Error.new(:status => 409, :message => "Already requested this users location. Waiting for the user to respond.")
 							render :json => e.to_json, :status => 409
+						else 
+							#create session
+							@expiry = Time.now + (3*60*60)
+							@channel = 'private-' + @user.id.to_s + '_private-' + params[:id].to_s
+							@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => "pending", :channel_name => @channel)
+							@session.save
+							#send push notification
+							@payload = @user.first_name + " " + @user.last_name + " has requested your location."
+							@notification = PendingNotification.new(:user_id => params[:id], :sender_id => @user.id, :category => "REQUEST_LOCATION", :payload => @payload, :read => "f")
+							@notification.save
+							#get pending notifications count
+							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', params[:id], false, Time.now)
+							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
+								User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, @session.as_json)
+							end
+							#respond with correct data
+							@result = {}
+							@result["channel_name"] = @session.channel_name
+							@result["id"] = params[:id]
+							render :json => @result.as_json, :status => 200
 						end
-						#create session
-						@expiry = Time.now + (3*60*60)
-						@channel = 'private-' + @user.id.to_s + '_private-' + params[:id].to_s
-						@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => "pending", :channel_name => @channel)
-						@session.save
-						#send push notification
-						@payload = @user.first_name + " " + @user.last_name + " has requested your location."
-						@notification = PendingNotification.new(:user_id => params[:id], :sender_id => @user.id, :category => "REQUEST_LOCATION", :payload => @payload, :read => "f")
-						@notification.save
-						#get pending notifications count
-						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', params[:id], false, Time.now)
-						if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-							User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, @session.as_json)
-						end
-						#respond with correct data
-						@result = {}
-						@result["channel_name"] = @session.channel_name
-						@result["id"] = params[:id]
-						render :json => @result.as_json, :status => 200
 					when 'SHARE'
 					when 'SEND'
 					end
