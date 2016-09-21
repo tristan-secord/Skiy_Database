@@ -304,8 +304,8 @@ class ApiController < ApplicationController
 	def locRequest
 		if request.post?
 			if @user
-				if params && params[:type] && params[:id]
-					case params[:type]
+				if params && params[:request_type] && params[:id]
+					case params[:request_type]
 					when 'REQUEST'
 						#check if a session between these two users already exists
 						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND type != ?', @user.id, params[:id], Time.now, 'SEND').first
@@ -316,8 +316,7 @@ class ApiController < ApplicationController
 						#create session
 						@expiry = Time.now + (3*60*60)
 						@channel = 'private-' + @user.id.to_s + '_private-' + params[:id].to_s
-						puts "TYPE: " + params[:type]
-						@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :type => params[:type].to_s, :expiry_date => @expiry, :status => 'pending', :channel_name => @channel)
+						@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => 'pending', :channel_name => @channel)
 						@session.save
 						#send push notification
 						@payload = @user.first_name + " " + @user.last_name + " has requested your location."
