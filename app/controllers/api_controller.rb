@@ -316,7 +316,7 @@ class ApiController < ApplicationController
 						#create session
 						@expiry = Time.now + (3*60*60)
 						@channel = 'private-' + @user.id.to_s + '_private-' + params[:id].to_s
-						@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => 'pending', :channel_name => @channel)
+						@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => "pending", :channel_name => @channel)
 						@session.save
 						#send push notification
 						@payload = @user.first_name + " " + @user.last_name + " has requested your location."
