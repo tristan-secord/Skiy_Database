@@ -323,14 +323,9 @@ class ApiController < ApplicationController
 						@notification = PendingNotification.new(:user_id => params[:id], :sender_id => @user.id, :category => "REQUEST_LOCATION", :payload => @payload, :read => "f")
 						@notification.save
 						#get pending notifications count
-						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @friend[:id], false, Time.now)
-						if @friend_notifications
-							@badgeCount = @friend_notifications.count
-						else
-							@badgeCount = 0
-						end
+						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', params[:id], false, Time.now)
 						if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-							User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @badgeCount, @session.as_json)
+							User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, @session.as_json)
 						end
 						#respond with correct data
 						@result = {}
