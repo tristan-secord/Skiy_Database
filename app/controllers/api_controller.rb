@@ -308,7 +308,7 @@ class ApiController < ApplicationController
 					case params[:request_type]
 					when 'REQUEST'
 						#check if a session between these two users already exists
-						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND type != ?', @user.id, params[:id], Time.now, 'SEND').first
+						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type != ?', @user.id, params[:id], Time.now, 'SEND').first
 						if @old_session
 							e = Error.new(:status => 409, :message => "Already requested this users location. Waiting for the user to respond.")
 							render :json => e.to_json, :status => 409
