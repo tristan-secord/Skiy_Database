@@ -6,7 +6,7 @@ class CreateActiveSessions < ActiveRecord::Migration
       t.string :status
       t.string :channel_name
       t.string :type
-      t.date :expiry_date
+      t.datetime :expiry_date
 
       t.timestamps null: false
     end
