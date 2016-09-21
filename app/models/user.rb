@@ -63,7 +63,7 @@ class User < ActiveRecord::Base
 		notification.badge = badgeCount
 		notification.sound = "sosumi.aiff"
 		notification.custom_data = data unless data.nil?
-		puts "Data: " + data
+		puts "Data: " + data.to_s
 		apn.push(notification)
 	end
 
