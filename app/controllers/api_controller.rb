@@ -378,7 +378,7 @@ class ApiController < ApplicationController
 				if params && params[:socket_id]
 					Pusher.authenticate('private-my_channel', params[:socket_id])
 				end
-			end
+			end 
 		end
 	end
 
