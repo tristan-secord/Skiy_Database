@@ -348,6 +348,30 @@ class ApiController < ApplicationController
 		end
 	end
 
+	def acceptRequest
+		if request.post?
+			if @user
+				if params && params[:id]
+					@session = ActiveSession.where(:id => params[:id]).first
+					if @session
+						@session.status = "Active"
+						@session.save
+						render :nothing => true, :status => 200
+					else
+						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
+						render :json => e.to_json, :status => 500
+				else  
+					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
+					render :json => e.to_json, :status => 400
+				end
+			else
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+				render :json => e.to_json, :status => 401
+			end
+		end
+	end
+
+
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
