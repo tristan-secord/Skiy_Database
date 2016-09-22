@@ -372,7 +372,16 @@ class ApiController < ApplicationController
 		end
 	end
 
+	def authenticatePusher
+		if request.get?
+			if @user
+				if params && params[:socket_id]
+					Pusher.authenticate('private-my_channel', params[:socket_id])
 
+	    Pusher.trigger('test_channel', 'my_event', {
+	      message: 'hello world'
+	    })
+	end
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
