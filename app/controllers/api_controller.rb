@@ -360,6 +360,7 @@ class ApiController < ApplicationController
 					else
 						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
 						render :json => e.to_json, :status => 500
+					end
 				else  
 					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
 					render :json => e.to_json, :status => 400
