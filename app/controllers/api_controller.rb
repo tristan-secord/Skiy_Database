@@ -377,10 +377,9 @@ class ApiController < ApplicationController
 			if @user
 				if params && params[:socket_id]
 					Pusher.authenticate('private-my_channel', params[:socket_id])
-
-	    Pusher.trigger('test_channel', 'my_event', {
-	      message: 'hello world'
-	    })
+				end
+			end
+		end
 	end
 
 	def rand_string(len)
