@@ -23,7 +23,7 @@ module Skiy
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
-     config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+    config.public_file_server.enabled = true
     config.assets.initialize_on_precompile = false
     config.log_level = :debug
   end
