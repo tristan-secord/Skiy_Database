@@ -18,6 +18,7 @@ class User < ActiveRecord::Base
 	has_many :devices
 	has_many :pending_notifications
 	has_many :active_sessions
+	has_many :locations
 
 	def encrypt_password
 		if password.present?

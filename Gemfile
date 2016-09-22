@@ -33,7 +33,8 @@ gem 'aescrypt'
 gem 'aws-sdk'
 gem 'rails_12factor', group: :production
 
-gem 'pusher'
+gem 'redis', '~> 3.0'
+gem 'puma'
 
 # Use Unicorn as the app server
 # gem 'unicorn'
