@@ -1,6 +1,4 @@
 # Be sure to restart your server when you modify this file. Action Cable runs in a loop that does not support auto reloading.
-include ActionController::HttpAuthentication::Token::ControllerMethods
-
 module ApplicationCable
   class Connection < ActionCable::Connection::Base
   	identified_by :current_user
@@ -11,8 +9,11 @@ module ApplicationCable
 	end
 
 	def find_verified_user
-    	authenticate_or_request_with_http_token do |token, options|     
-      	@user = User.where('users.api_authtoken = ? AND users.authtoken_expiry > ?', token, Time.now).first
+    	if current_user = User.find_by(api_authtoken: request.params[:token])
+    		current_user
+    	else
+    		reject_unauthorized_connection
+    	end
     end
   end
 end
