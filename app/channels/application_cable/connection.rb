@@ -10,8 +10,6 @@ module ApplicationCable
     	reject_unauthorized_connection if self.current_user.nil?
 	end
 
-	protected
-
 	def find_verified_user
     	authenticate_or_request_with_http_token do |token, options|
       		@user = User.where('users.api_authtoken = ? AND users.authtoken_expiry > ?', token, Time.now).first
