@@ -14,7 +14,8 @@ module ApplicationCable
 
 	def find_verified_user
     	authenticate_or_request_with_http_token do |token, options|
-      	User.find_by(auth_token: token)
+      		User.find_by(auth_token: token)
+      	end
     end
   end
 end
