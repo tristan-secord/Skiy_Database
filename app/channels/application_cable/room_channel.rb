@@ -9,7 +9,8 @@ class RoomChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
   end
 
-  def alert(data) 
+  def locUpdate(data) 
+  	#ADD TO SERVER (LOCATIONS)
   	ActionCable.server.broadcast("locations", data)
   end
 end
