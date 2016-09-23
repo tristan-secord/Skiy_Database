@@ -25,8 +25,6 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
   Rails.application.config.action_cable.allowed_request_origins = ['http://redistogo:670fc3f829ad01e2be644776c1454c77@viperfish.redistogo.com:11991', 'https://redistogo:670fc3f829ad01e2be644776c1454c77@viperfish.redistogo.com:11991']
 
-immense-forest-45065.herokuapp.com
-
   # Compress JavaScripts and CSS.
   config.assets.js_compressor = :uglifier
   # config.assets.css_compressor = :sass
