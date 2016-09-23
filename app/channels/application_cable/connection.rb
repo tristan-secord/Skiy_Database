@@ -11,9 +11,8 @@ module ApplicationCable
 	end
 
 	def find_verified_user
-    	authenticate_or_request_with_http_token do |token, options|
-      		@user = User.where('users.api_authtoken = ? AND users.authtoken_expiry > ?', token, Time.now).first
-      	end
+    	authenticate_or_request_with_http_token do |token, options|     
+      	@user = User.where('users.api_authtoken = ? AND users.authtoken_expiry > ?', token, Time.now).first
     end
   end
 end
