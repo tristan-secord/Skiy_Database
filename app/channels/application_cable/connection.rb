@@ -12,6 +12,8 @@ module ApplicationCable
     	if current_user = User.find_by(api_authtoken: request.params[:Authorization])
     		current_user
     	elsif current_user = User.find_by(api_authtoken: request.headers['Authorization'])
+    		current_user
+    	else
     		reject_unauthorized_connection
     	end
     end
