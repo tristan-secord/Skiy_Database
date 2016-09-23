@@ -9,7 +9,7 @@ module ApplicationCable
 	end
 
 	def find_verified_user
-    	if current_user = User.find_by(api_authtoken: request.params[:token])
+    	if current_user = User.find_by(api_authtoken: request.params[:Authorization])
     		current_user
     	else
     		reject_unauthorized_connection
