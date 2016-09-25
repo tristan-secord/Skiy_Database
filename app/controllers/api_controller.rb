@@ -356,6 +356,10 @@ class ApiController < ApplicationController
 					if @session
 						@session.status = "Active"
 						@session.save
+						@toUser = User.where(:id => @session[:friend_id).first
+						@payload = @toUser[:first_name].to_s + ' ' + @toUser[:last_name].to_s + ' has accepted your request. You are now tracking their location.'
+						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
+						User.notify_ios(@session[:friend_id], "ACCEPTED", @payload, @friend_notifications.count, @session.as_json)
 						render :nothing => true, :status => 200
 					else
 						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
