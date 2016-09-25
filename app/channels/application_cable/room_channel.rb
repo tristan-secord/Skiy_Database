@@ -17,6 +17,6 @@ class RoomChannel < ApplicationCable::Channel
 
   def locUpdate(data) 
   	#ADD TO SERVER (LOCATIONS)
-  	ActionCable.server.broadcast("RoomChannel#{current_user.id}", data)
+  	ActionCable.server.broadcast("RoomChannel5", data)
   end
 end
