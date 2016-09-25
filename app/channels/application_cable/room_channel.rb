@@ -6,8 +6,8 @@ class RoomChannel < ApplicationCable::Channel
   	else
   		puts 'NO params'
   	end
-  	
-  	stream_from 'RoomChannel#{current_user.id}'
+
+  	stream_from 'RoomChannel5'
     # stream_from "some_channel"
   end
 
