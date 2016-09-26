@@ -1,7 +1,7 @@
 # Be sure to restart your server when you modify this file. Action Cable runs in a loop that does not support auto reloading.
 class RoomChannel < ApplicationCable::Channel
   def subscribed
-  	stream_from 'locations#{params[:id]}'
+  	stream_from 'room_channel_#{params[:id]}'
     # stream_from "some_channel"
   end
 
@@ -11,6 +11,6 @@ class RoomChannel < ApplicationCable::Channel
 
   def locUpdate(data) 
   	#ADD TO SERVER (LOCATIONS)
-  	ActionCable.server.broadcast('locations5', data)
+  	ActionCable.server.broadcast('room_channel_5', data)
   end
 end

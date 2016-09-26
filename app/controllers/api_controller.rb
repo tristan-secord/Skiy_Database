@@ -315,8 +315,7 @@ class ApiController < ApplicationController
 						else 
 							#create session
 							@expiry = Time.now + (3*60*60)
-							#@channel = 'room_channel_' + params[:id].to_s
-							@channel = 'locations'
+							@channel = 'room_channel_' + params[:id].to_s
 							@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => "pending", :channel_name => @channel)
 							@session.save
 							#send push notification
@@ -358,7 +357,7 @@ class ApiController < ApplicationController
 						@session.status = "Active"
 						@session.save
 						@toUser = User.where(:id => @session[:user_id]).first
-						@payload = @toUser[:first_name].to_s + ' ' + @toUser[:last_name].to_s + ' has accepted your request. You are now tracking their location.'
+						@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now tracking their location.'
 						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
 						User.notify_ios(@session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, @session.as_json)
 						render :nothing => true, :status => 200
