@@ -2,7 +2,7 @@
 class RoomChannel < ApplicationCable::Channel
   def subscribed
   	if params
-  		puts params
+  		puts 'params: ' + params
   	else
   		puts 'NO params'
   	end
