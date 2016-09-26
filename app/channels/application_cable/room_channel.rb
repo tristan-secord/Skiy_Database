@@ -1,13 +1,7 @@
 # Be sure to restart your server when you modify this file. Action Cable runs in a loop that does not support auto reloading.
 class RoomChannel < ApplicationCable::Channel
   def subscribed
-  	if params
-  		puts 'params: ' + params
-  	else
-  		puts 'NO params'
-  	end
-
-  	stream_from 'RoomChannel5'
+  	stream_from 'room_channel_#{params[:id]}'
     # stream_from "some_channel"
   end
 
