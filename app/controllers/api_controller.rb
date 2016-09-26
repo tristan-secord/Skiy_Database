@@ -315,7 +315,8 @@ class ApiController < ApplicationController
 						else 
 							#create session
 							@expiry = Time.now + (3*60*60)
-							@channel = 'room_channel_' + params[:id].to_s
+							#@channel = 'room_channel_' + params[:id].to_s
+							@channel = 'locations'
 							@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => "pending", :channel_name => @channel)
 							@session.save
 							#send push notification
