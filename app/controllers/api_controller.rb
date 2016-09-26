@@ -328,11 +328,7 @@ class ApiController < ApplicationController
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
 								User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, @session.as_json)
 							end
-							#respond with correct data
-							@result = {}
-							@result["channel_name"] = @session.channel_name
-							@result["id"] = params[:id]
-							render :json => @result.as_json, :status => 200
+							render :json => @session.as_json, :status => 200
 						end
 					when 'SHARE'
 					when 'SEND'
