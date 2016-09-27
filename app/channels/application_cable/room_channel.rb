@@ -1,8 +1,12 @@
 # Be sure to restart your server when you modify this file. Action Cable runs in a loop that does not support auto reloading.
 class RoomChannel < ApplicationCable::Channel
   def subscribed
-  	@channel = 'room_channel_' + params[:id].to_s
-  	stream_from @channel
+  	@session = ActiveSession.where(:id => params[:id]).first
+  	if @session
+  		@senderID = @session[:friend_id]
+  		@channel = 'room_channel_' + @senderID.to_s
+  		stream_from @channel
+  	end
     # stream_from "some_channel"
   end
 

@@ -308,7 +308,7 @@ class ApiController < ApplicationController
 					case params[:request_type]
 					when 'REQUEST'
 						#check if a session between these two users already exists
-						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type != ?', @user.id, params[:id], Time.now, 'SEND').first
+						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type != ? AND session IS NOT NULL', @user.id, params[:id], Time.now, 'SEND').first
 						if @old_session
 							e = Error.new(:status => 409, :message => "Already requested this users location. Waiting for the user to respond.")
 							render :json => e.to_json, :status => 409
@@ -349,7 +349,7 @@ class ApiController < ApplicationController
 			if @user
 				if params && params[:id]
 					@session = ActiveSession.where(:id => params[:id]).first
-					if @session
+					if @session && @session.status != nil
 						@session.status = "Active"
 						@session.save
 						@toUser = User.where(:id => @session[:user_id]).first
@@ -371,6 +371,39 @@ class ApiController < ApplicationController
 			end
 		end
 	end
+
+	def stopTracking
+		if request.post?
+			if @user
+				if params && params[:session_id]
+					@session = ActiveSession.find(params[:session_id])
+					if @session
+						@session.status = nil
+						@session.save
+						@SenderSessions = ActiveSession.where('friend_id = ? AND status IS NOT NULL AND expiry_date > ?', @session[:friend_id], Time.now)
+						if @SenderSessions.count > 0 
+							render :nothing => true, :status => 200
+						else
+							#push notification to sender to unsubscribe
+							@payload = 'You are no longer being tracked by anyone'
+							@notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
+							User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE', @payload, @notifications.count, {"session_id": @session[:id]}.as_json)
+						end
+					else
+						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
+						render :json => e.to_json, :status => 500
+					end
+				else  
+					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
+					render :json => e.to_json, :status => 400
+				end
+			else
+				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
+				render :json => e.to_json, :status => 401
+			end
+		end
+	end
+
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
