@@ -388,6 +388,7 @@ class ApiController < ApplicationController
 							@payload = 'You are no longer being tracked by anyone'
 							@notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
 							User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE', @payload, @notifications.count, {"session_id": @session[:id]}.as_json)
+							render :nothing => true, :status => 200
 						end
 					else
 						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
