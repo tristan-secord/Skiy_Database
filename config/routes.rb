@@ -14,7 +14,6 @@ Rails.application.routes.draw do
   post 'api/getNotifications'
   post 'api/locRequest'
   post 'api/acceptRequest'
-  post 'api/stopTracking'
 
   match "*path", to: "application#page_not_found", via: :all
 

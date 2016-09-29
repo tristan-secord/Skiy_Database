@@ -372,39 +372,6 @@ class ApiController < ApplicationController
 		end
 	end
 
-	def stopTracking
-		if request.post?
-			if @user
-				if params && params[:session_id]
-					@session = ActiveSession.find(params[:session_id])
-					if @session
-						@session.status = nil
-						@session.save
-						@SenderSessions = ActiveSession.where('friend_id = ? AND status IS NOT NULL AND expiry_date > ?', @session[:friend_id], Time.now)
-						if @SenderSessions.count > 0 
-							render :nothing => true, :status => 200
-						else
-							#push notification to sender to unsubscribe
-							@payload = 'You are no longer being tracked by anyone'
-							@notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
-							User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE', @payload, @notifications.count, {"session_id": @session[:id]}.as_json)
-							render :nothing => true, :status => 200
-						end
-					else
-						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
-						render :json => e.to_json, :status => 500
-					end
-				else  
-					e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
-					render :json => e.to_json, :status => 400
-				end
-			else
-				e = Error.new(:status => 401, :message => "Unauthorized Access. Please try again")
-				render :json => e.to_json, :status => 401
-			end
-		end
-	end
-
 
 	def rand_string(len)
     	o =  [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
