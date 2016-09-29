@@ -23,7 +23,7 @@ class RoomChannel < ApplicationCable::Channel
             session.status = nil
             session.save
             #SEND UNSUBSCRIBE REQUESTER TO EACH USER
-            @payload = ''
+            @payload = current_user.first_name + ' has stopped transmitting their location. You are no longer tracking this user.'
             @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', session[:user_id], false, Time.now)
             User.notify_ios(session[:user_id], 'UNSUBSCRIBE_REQUESTER', @payload, @notifications.count, {"session_id": session[:id]}.as_json)
           end
@@ -37,7 +37,7 @@ class RoomChannel < ApplicationCable::Channel
           if @SenderSessions.count > 0 
           else
             #push notification to sender to unsubscribe
-            @payload = 'You are no longer being tracked by anyone'
+            @payload = 'There are currently no users tracking your location.'
             @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
             User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE_SENDER', @payload, @notifications.count, {"session_id": @session[:id]}.as_json)
           end
