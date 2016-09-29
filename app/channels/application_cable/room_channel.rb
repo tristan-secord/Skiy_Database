@@ -26,20 +26,17 @@ class RoomChannel < ApplicationCable::Channel
           @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', session[:user_id], false, Time.now)
           User.notify_ios(session[:user_id], 'UNSUBSCRIBE_REQUESTER', @payload, @notifications.count, {"session_id": session[:id]}.as_json)
         end
-        render :nothing => true, :status => 200
       elsif current_user[:id] == @session.user_id
         @session.status = nil
         @session.save
         #unsubscribe sent from receiver
         @SenderSessions = ActiveSession.where('friend_id = ? AND status IS NOT NULL AND expiry_date > ?', @session[:friend_id], Time.now)
         if @SenderSessions.count > 0 
-          render :nothing => true, :status => 200
         else
           #push notification to sender to unsubscribe
           @payload = 'You are no longer being tracked by anyone'
           @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
           User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE_SENDER', @payload, @notifications.count, {"session_id": @session[:id]}.as_json)
-          render :nothing => true, :status => 200
         end
       end
     else
