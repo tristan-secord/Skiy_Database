@@ -144,6 +144,7 @@ class ApiController < ApplicationController
 	    			@pending = []
 	    			@requested = []
 	    			@friends = []
+	    			@removed = []
 					@relationships = Friend.where(:user_id => @user.id)
 					@relationships.each do |relationship|
 						if !params[:data_refresh].any? {|data| data[:id].to_i == relationship.friend_id && data[:updated_at].to_time >= relationship.updated_at}
@@ -155,6 +156,9 @@ class ApiController < ApplicationController
 								@requested.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							when 'friends'
 								@friends.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+							when 'removed'
+								@removed.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:username]))
+								@relationship.destroy
 							end
 						end
 					end
@@ -162,6 +166,7 @@ class ApiController < ApplicationController
 					@result["pending"] = @pending
 					@result["requested"] = @requested
 					@result["friends"] = @friends
+					@result["removed"] = @removed
 					render :json => @result.as_json, :status => 200
 		    	else
 					@pending = User.joins('JOIN friends ON friends.friend_id = users.id').where('friends.user_id = ? AND friends.friend_status = ?', @user.id, 'pending').as_json(:only => [:id, :first_name, :last_name, :username, :email])
@@ -252,11 +257,17 @@ class ApiController < ApplicationController
 					if @friend
 						@forward_relationship = Friend.where(:user_id => @user[:id], :friend_id => @friend[:id]).first
 						if @forward_relationship
-							Friend.find(@forward_relationship[:id]).destroy
+							@forward_relationship[:friend_status].destroy
 						end
 						@reverse_relationship = Friend.where(:user_id => @friend[:id], :friend_id => @user[:id]).first
 						if @reverse_relationship
-							Friend.find(@reverse_relationship[:id]).destroy
+							@reverse_relationship[:friend_status] = 'removed'
+							@reverse_relationship.save
+						end
+						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @friend[:id], false, Time.now)
+						@friend_device = Device.where(:user_id => @friend[:id]).first
+						if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
+							User.notify_ios(@friend[:id], "REMOVE_FRIEND", '', @friend_notifications.count, @user.as_json(:only => [:username]))
 						end
 						render :nothing => true, :status => 200
 					else 
