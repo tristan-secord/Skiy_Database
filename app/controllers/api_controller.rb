@@ -257,7 +257,7 @@ class ApiController < ApplicationController
 					if @friend
 						@forward_relationship = Friend.where(:user_id => @user[:id], :friend_id => @friend[:id]).first
 						if @forward_relationship
-							@forward_relationship[:friend_status].destroy
+							@forward_relationship.destroy
 						end
 						@reverse_relationship = Friend.where(:user_id => @friend[:id], :friend_id => @user[:id]).first
 						if @reverse_relationship
