@@ -158,7 +158,7 @@ class ApiController < ApplicationController
 								@friends.push(User.where(:id => relationship.friend_id).first.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							when 'removed'
 								@removed.push(User.where(:id => relationship.user_id).first.as_json(:only => [:username]))
-								@relationship.destroy
+								relationship.destroy
 							end
 						end
 					end
