@@ -52,7 +52,7 @@ class User < ActiveRecord::Base
 		end
 	end
 
-	def self.notify_ios(id, category, text, badgeCount, data = nil)
+	def self.notify_ios(id, category, text, badgeCount, content_available, data = nil)
 	    apn = Houston::Client.development
 	   	apn.passphrase = ENV["APN_CERTIFICATE_PASSPHRASE"]
 	    apn.certificate = File.read(ENV["APN_CERTIFICATE"]) # certificate from prerequisites
@@ -63,6 +63,7 @@ class User < ActiveRecord::Base
 		# take a look at the docs about these params
 		notification.badge = badgeCount
 		notification.sound = "sosumi.aiff"
+		notification.content_available = content_available
 		notification.custom_data = {custom_data: data} unless data.nil?
 		apn.push(notification)
 	end
