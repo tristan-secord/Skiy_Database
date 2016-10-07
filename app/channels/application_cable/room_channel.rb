@@ -14,10 +14,10 @@ class RoomChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
     @session = ActiveSession.where(:id => params[:id]).first
     if @session
-      if current_user[:id] == @session.friend_id
+      if @session[:request_type] = 'SEND'
         if @session != nil
           #unsubscribe sent from sender
-          @SenderSessions = ActiveSession.where('friend_id = ? AND status IS NOT NULL AND expiry_date > ?', @session[:friend_id], Time.now)
+          @SenderSessions = ActiveSession.where('friend_id = ? AND request_type != ? AND status IS NOT NULL AND expiry_date > ?', @session[:friend_id], 'SEND', Time.now)
           @SenderSessions.each do |session| 
             #CLEAR DATA IN SERVER
             session.status = nil
@@ -28,14 +28,13 @@ class RoomChannel < ApplicationCable::Channel
             User.notify_ios(session[:user_id], 'UNSUBSCRIBE_REQUESTER', @payload, @notifications.count, true, {"session_id": session[:id]}.as_json)
           end
         end
-      elsif current_user[:id] == @session.user_id
+      elsif @session[:request_type] = 'REQUEST'
         #unsubscribe sent from receiver
         if @session.status != nil
           @session.status = nil
           @session.save
-          @SenderSessions = ActiveSession.where('friend_id = ? AND status IS NOT NULL AND expiry_date > ?', @session[:friend_id], Time.now)
-          if @SenderSessions.count > 0 
-          else
+          @SenderSessions = ActiveSession.where('user_id = ? AND status IS NOT NULL AND expiry_date > ? AND request_type = ?', @session[:friend_id], Time.now, 'SEND')
+          if @SenderSessions.count <= 0 
             #push notification to sender to unsubscribe
             @payload = 'There are currently no users tracking your location.'
             @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)

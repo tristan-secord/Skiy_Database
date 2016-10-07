@@ -327,8 +327,10 @@ class ApiController < ApplicationController
 							#create session
 							@expiry = Time.now + (3*60*60)
 							@channel = 'room_channel_' + params[:id].to_s
-							@session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => "requested", :channel_name => @channel)
-							@session.save
+							@forward_session = ActiveSession.new(:user_id => @user.id, :friend_id => params[:id], :request_type => params[:request_type], :expiry_date => @expiry, :status => "requested", :channel_name => @channel)
+							@forward_session.save
+							@reverse_session = ActiveSession.new(:user_id => params[:id], :friend_id => @user.id, :request_type => 'SEND', :expiry_date => @expiry, :status => "pending", :channel_name => @channel)
+							@reverse_session.save
 							#send push notification
 							@payload = @user.first_name + " " + @user.last_name + " has requested your location."
 							@notification = PendingNotification.new(:user_id => params[:id], :sender_id => @user.id, :category => "REQUEST_LOCATION", :payload => @payload, :read => "f")
@@ -337,10 +339,9 @@ class ApiController < ApplicationController
 							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', params[:id], false, Time.now)
 							@friend_device = Device.where(:user_id => params[:id]).first
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-								@session[:status] = 'pending'
-								User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, false, @session.as_json)
+								User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, false, @reverse_session.as_json)
 							end
-							render :json => @session.as_json, :status => 200
+							render :json => @forward_session.as_json, :status => 200
 						end
 					when 'SHARE'
 						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND status IS NOT NULL', @user.id, params[:id], Time.now).first
@@ -380,15 +381,24 @@ class ApiController < ApplicationController
 		if request.post?
 			if @user
 				if params && params[:id]
-					@session = ActiveSession.where(:id => params[:id]).first
-					if @session && @session.status != nil
-						@session.status = "Active"
-						@session.save
-						@toUser = User.where(:id => @session[:user_id]).first
-						@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now tracking their location.'
-						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
-						User.notify_ios(@session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, false, @session.as_json)
-						render :nothing => true, :status => 200
+					@forward_session = ActiveSession.where(:id => params[:id]).first
+					if @forward_session && @forward_session.status != nil
+						@reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND status != ? AND (status = ? OR status = ?)', @forward_session[:friend_id], @forward_session[:user_id], Time.now, @forward_session[:status], 'pending', 'requested').first
+						if @reverse_session
+							@forward_session.status = "active"
+							@reverse_session.status = "active"
+							@forward_session.save
+							@reverse_session.save
+
+							@toUser = User.where(:id => @forward_session[:user_id]).first
+							@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now tracking their location.'
+							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @forward_session[:friend_id], false, Time.now)
+							User.notify_ios(@session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, false, @reverse_session.as_json)
+							render :nothing => true, :status => 200
+						else
+							e = Error.new(:status => 500, :message => "Could not find session. Please try again")
+							render :json => e.to_json, :status => 500
+						end
 					else
 						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
 						render :json => e.to_json, :status => 500
