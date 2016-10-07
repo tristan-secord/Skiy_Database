@@ -65,7 +65,7 @@ class ApiController < ApplicationController
 						if device
 							if device[:registration_id] != params[:device_id]
 								#send push notification to old device
-								User.notify_ios(user.id, "SIGNOUT", "You have been signed out. Account has been accessed on another device. If this was not you please change your password!", 0, 0, nil)
+								User.notify_ios(user.id, "SIGNOUT", "You have been signed out. Account has been accessed on another device. If this was not you please change your password!", 0, false, nil)
 								device.registration_id = params[:device_id]
 								device.authtoken_expiry = user.authtoken_expiry
 							end
@@ -229,7 +229,7 @@ class ApiController < ApplicationController
 							#get pending notifications count
 							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @friend[:id], false, Time.now)
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, @friend_notifications.count, 0, @user.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
+								User.notify_ios(@friend[:id], "FRIEND_REQUEST", @payload, @friend_notifications.count, false, @user.as_json(:only => [:id, :first_name, :last_name, :username, :email]))
 							end
 							render :nothing => true, :status => 200
 						end
@@ -267,7 +267,7 @@ class ApiController < ApplicationController
 						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @friend[:id], false, Time.now)
 						@friend_device = Device.where(:user_id => @friend[:id]).first
 						if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-							User.notify_ios(@friend[:id], "REMOVE_FRIEND", '', @friend_notifications.count, 0, @user.as_json(:only => [:username]))
+							User.notify_ios(@friend[:id], "REMOVE_FRIEND", '', @friend_notifications.count, false, @user.as_json(:only => [:username]))
 						end
 						render :nothing => true, :status => 200
 					else 
@@ -359,7 +359,7 @@ class ApiController < ApplicationController
 							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', params[:id], false, Time.now)
 							@friend_device = Device.where(:user_id => params[:id]).first
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-								User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, 0, @session.as_json)
+								User.notify_ios(params[:id], "REQUEST_LOCATION", @payload, @friend_notifications.count, false, @session.as_json)
 							end
 							render :json => @session.as_json, :status => 200
 					when 'SEND'
@@ -386,7 +386,7 @@ class ApiController < ApplicationController
 						@toUser = User.where(:id => @session[:user_id]).first
 						@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now tracking their location.'
 						@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
-						User.notify_ios(@session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, 0, @session.as_json)
+						User.notify_ios(@session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, false, @session.as_json)
 						render :nothing => true, :status => 200
 					else
 						e = Error.new(:status => 500, :message => "Could not find this session. Please try again")
