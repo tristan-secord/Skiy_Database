@@ -41,7 +41,7 @@ class RoomChannel < ApplicationCable::Channel
           puts ("There was a problem finding reverse session. Forward session - SEND. Please try again")
         end
       elsif @forward_session[:request_type] == 'REQUEST'
-        @reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type = ?', @forward_session[:friend_id], @forward_session[:user_id], Time.now, 'SEND').first
+        @reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND status IS NOT NULL AND expiry_date > ? AND request_type = ?', @forward_session[:friend_id], @forward_session[:user_id], Time.now, 'SEND').first
         if @reverse_session
           #unsubscribe sent from receiver
           if @forward_session.status != nil
