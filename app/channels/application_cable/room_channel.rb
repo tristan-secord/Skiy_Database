@@ -31,7 +31,7 @@ class RoomChannel < ApplicationCable::Channel
             @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', session[:user_id], false, Time.now)
             User.notify_ios(session[:user_id], 'UNSUBSCRIBE_REQUESTER', @payload, @notifications.count, true, {"session_id": session[:id]}.as_json)
           end
-          @SendingSessions = ActiveSession.where('user_id = AND request_type = ? AND status IS NOT NULL AND expiry_date > ?', @forward_session[:user_id], 'SEND', Time.now)
+          @SendingSessions = ActiveSession.where('user_id = ? AND request_type = ? AND status IS NOT NULL AND expiry_date > ?', @forward_session[:user_id], 'SEND', Time.now)
           @SendingSessions.each do |session|
             #CLEAR DATA IN SERVER
             session.status = nil
