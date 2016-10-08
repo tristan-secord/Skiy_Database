@@ -319,7 +319,7 @@ class ApiController < ApplicationController
 					case params[:request_type]
 					when 'REQUEST'
 						#check if a session between these two users already exists
-						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type != ? AND status IS NOT NULL', @user.id, params[:id], Time.now, 'SEND').first
+						@old_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type != ? AND status IS NOT NULL AND status != ?', @user.id, params[:id], Time.now, 'SEND', 'cancelled').first
 						if @old_session
 							e = Error.new(:status => 409, :message => "Already requested this users location. Waiting for the user to respond.")
 							render :json => e.to_json, :status => 409
@@ -383,16 +383,16 @@ class ApiController < ApplicationController
 				if params && params[:id]
 					@forward_session = ActiveSession.where(:id => params[:id]).first
 					if @forward_session && @forward_session.status != nil
-						@reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND status != ? AND (status = ? OR status = ?)', @forward_session[:friend_id], @forward_session[:user_id], Time.now, @forward_session[:status], 'pending', 'requested').first
+						@reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type != ? AND (status = ? OR status = ?)', @forward_session[:friend_id], @forward_session[:user_id], Time.now, @forward_session[:request_type], 'pending', 'requested').first
 						if @reverse_session
 							@forward_session.status = "active"
 							@reverse_session.status = "active"
 							@forward_session.save
 							@reverse_session.save
 
-							@toUser = User.where(:id => @forward_session[:user_id]).first
+							#@toUser = User.where(:id => @forward_session[:user_id]).first
 							@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now tracking their location.'
-							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @forward_session[:friend_id], false, Time.now)
+							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @reverse_session[:user_id], false, Time.now)
 							User.notify_ios(@reverse_session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, false, @reverse_session.as_json)
 							render :nothing => true, :status => 200
 						else
