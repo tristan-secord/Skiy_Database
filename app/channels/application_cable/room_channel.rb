@@ -14,7 +14,6 @@ class RoomChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
     @forward_session = ActiveSession.where(:id => params[:id]).first
     if @forward_session
-
       if @forward_session[:request_type] = 'SEND'
         @reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type = ?', @forward_session[:friend_id], @forward_session[:user_id], Time.now, 'REQUEST').first
         if @reverse_session
@@ -40,8 +39,7 @@ class RoomChannel < ApplicationCable::Channel
             session.save
           end
         else
-          e = Error.new(:status => 500, :message => "There was a problem finding this session. Please try again")
-          render :json => e.to_json, :status => 500
+          puts ("There was a problem finding this session. Please try again")
         end
       elsif @forward_session[:request_type] = 'REQUEST'
         @reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type = ?', @forward_session[:friend_id], @forward_session[:user_id], Time.now, 'SEND').first
@@ -63,13 +61,11 @@ class RoomChannel < ApplicationCable::Channel
             User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE_SENDER', @payload, @notifications.count, true, {"session_id": @reverse_session[:id]}.as_json)
           end
         else 
-          e = Error.new(:status => 500, :message => "There was a problem finding this session. Please try again")
-          render :json => e.to_json, :status => 500
+          puts("There was a problem finding this session. Please try again")
         end
       end
     else
-      e = Error.new(:status => 500, :message => "There was a problem finding this session. Please try again")
-      render :json => e.to_json, :status => 500
+      puts("There was a problem finding this session. Please try again")
     end
   end
 
