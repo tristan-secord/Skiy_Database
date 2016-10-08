@@ -51,13 +51,13 @@ class RoomChannel < ApplicationCable::Channel
           if @reverse_session.status != nil 
             @reverse_session.status = nil
             @reverse_session.save
-          end
-          @SenderSessions = ActiveSession.where('user_id = ? AND status IS NOT NULL AND expiry_date > ? AND request_type = ?', @session[:friend_id], Time.now, 'SEND')
-          if @SenderSessions.count <= 0 
-            #push notification to sender to unsubscribe
-            @payload = 'There are currently no users tracking your location.'
-            @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
-            User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE_SENDER', @payload, @notifications.count, true, {"session_id": @reverse_session[:id]}.as_json)
+            @SenderSessions = ActiveSession.where('user_id = ? AND status IS NOT NULL AND expiry_date > ? AND request_type = ?', @session[:friend_id], Time.now, 'SEND')
+            if @SenderSessions.count <= 0 
+              #push notification to sender to unsubscribe
+              @payload = 'There are currently no users tracking your location.'
+              @notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @session[:friend_id], false, Time.now)
+              User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE_SENDER', @payload, @notifications.count, true, {"session_id": @reverse_session[:id]}.as_json)
+            end
           end
         else 
           puts("There was a problem finding reverse session. Forward session - REQUEST. Please try again")
