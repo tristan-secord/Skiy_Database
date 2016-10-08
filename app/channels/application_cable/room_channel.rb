@@ -3,8 +3,7 @@ class RoomChannel < ApplicationCable::Channel
   def subscribed
   	@session = ActiveSession.where(:id => params[:id]).first
   	if @session
-  		@senderID = @session[:friend_id]
-  		@channel = 'room_channel_' + @senderID.to_s
+  		@channel = @session[:channel_name].to_s
   		stream_from @channel
   	end
     # stream_from "some_channel"
@@ -39,7 +38,7 @@ class RoomChannel < ApplicationCable::Channel
             session.save
           end
         else
-          puts ("There was a problem finding this session. Please try again")
+          puts ("There was a problem finding reverse session. Forward session - SEND. Please try again")
         end
       elsif @forward_session[:request_type] = 'REQUEST'
         @reverse_session = ActiveSession.where('user_id = ? AND friend_id = ? AND expiry_date > ? AND request_type = ?', @forward_session[:friend_id], @forward_session[:user_id], Time.now, 'SEND').first
@@ -61,11 +60,11 @@ class RoomChannel < ApplicationCable::Channel
             User.notify_ios(@session[:friend_id], 'UNSUBSCRIBE_SENDER', @payload, @notifications.count, true, {"session_id": @reverse_session[:id]}.as_json)
           end
         else 
-          puts("There was a problem finding this session. Please try again")
+          puts("There was a problem finding reverse session. Forward session - REQUEST. Please try again")
         end
       end
     else
-      puts("There was a problem finding this session. Please try again")
+      puts("There was a problem finding forward session. Please try again")
     end
   end
 
