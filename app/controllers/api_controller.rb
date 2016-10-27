@@ -408,7 +408,7 @@ class ApiController < ApplicationController
 								User.notify_ios(@reverse_session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, false, @reverse_session.as_json)
 								render :nothing => true, :status => 200
 							else
-								if forward_session[:request_type] == "REQUEST"
+								if @forward_session[:request_type] == "REQUEST"
 									@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now sharing locations.'
 									@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @reverse_session[:user_id], false, Time.now)
 									User.notify_ios(@reverse_session[:user_id], "ACCEPTED", @payload, @friend_notifications.count, false, @reverse_session.as_json)
