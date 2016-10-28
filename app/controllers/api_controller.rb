@@ -370,7 +370,7 @@ class ApiController < ApplicationController
 							@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', params[:id], false, Time.now)
 							@friend_device = Device.where(:user_id => params[:id]).first
 							if @friend_device && @friend_device.authtoken_expiry > Time.now && @friend_device.registration_id
-								User.notify_ios(params[:id], "SHARE_LOCATION", @payload, @friend_notifications.count, false, {"send_session": @forward_session_2, "request_session": @reverse_session_2}.as_json)
+								User.notify_ios(params[:id], "SHARE_LOCATION", @payload, @friend_notifications.count, false, {"send_session": @reverse_session_1, "request_session": @reverse_session_2}.as_json)
 							end
 							render :json => @session.as_json, :status => 200
 					when 'SEND'
