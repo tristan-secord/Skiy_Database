@@ -420,6 +420,11 @@ class ApiController < ApplicationController
 											@reverse_req_session.expiry_date = nil
 											@forward_req_session.save
 											@reverse_req_session.save
+											#Send PN saying share was accepted
+											@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now sharing locations.'
+											@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @reverse_session[:user_id], false, Time.now)
+											User.notify_ios(@reverse_session[:user_id], "SHARE_ACCEPTED", @payload, @friend_notifications.count, false, {"send_session": @reverse_session, "req_session": @reverse_req_session}.as_json)
+											render :nothing => true, :status => 200
 										else
 											e = Error.new(:status => 500, :message => "Could not find session. Please try again")
 											render :json => e.to_json, :status => 500
@@ -432,11 +437,6 @@ class ApiController < ApplicationController
 									e = Error.new(:status => 400, :message => "Missing parameters. Please try again")
 									render :json => e.to_json, :status => 400
 								end
-								#Send PN saying share was accepted
-								@payload = @user[:first_name].to_s + ' ' + @user[:last_name].to_s + ' has accepted your request. You are now sharing locations.'
-								@friend_notifications = PendingNotification.where('user_id = ? AND read = ? AND (expiry IS NULL OR expiry > ?)', @reverse_session[:user_id], false, Time.now)
-								User.notify_ios(@reverse_session[:user_id], "SHARE_ACCEPTED", @payload, @friend_notifications.count, false, {"send_session": @reverse_session, "req_session": @reverse_req_session}.as_json)
-								render :nothing => true, :status => 200
 							end
 						else
 							e = Error.new(:status => 500, :message => "Could not find session. Please try again")
