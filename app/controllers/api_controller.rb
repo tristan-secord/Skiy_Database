@@ -461,7 +461,7 @@ class ApiController < ApplicationController
 		if request.post?
 			if @user
 				if params && params[:session_id]
-					@session = ActiveSession.where(:session_id => params[:session_id]).first
+					@session = ActiveSession.where(:id => params[:session_id]).first
 					if @session
 						@session.status = nil
 						@session.save
